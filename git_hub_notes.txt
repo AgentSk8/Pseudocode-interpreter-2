@@ -1,0 +1,5 @@
+since I am a beginner here are the basic commands:
+git remote add upstream {url} # sync central repo with local repo
+git pull upstream {branch} # pull changes down
+git add / git commit # local changes, can also use source control on left
+git push origin {branch} # make changes (can also be done from left)
