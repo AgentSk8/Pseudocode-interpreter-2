@@ -1,6 +1,15 @@
 #include "lexer.h"
 
-
+std::map<TokenType,std::string> TokenTypeMap = {
+    {NUMBER,"NUMBER"},
+    {PLUS,"PLUS"},
+    {MINUS,"MINUS"},
+    {MULTIPLY,"MULTIPLY"},
+    {DIVIDE,"DIVIDE"},
+    {LPAREN,"LPAREN"},
+    {RPAREN,"RPAREN"},
+    {NONE,"NONE"}
+};
 
 Token::Token(TokenType Type) {
     type = Type;

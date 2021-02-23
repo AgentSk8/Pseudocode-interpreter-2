@@ -16,16 +16,7 @@ enum TokenType{
     NONE = 7
 };
 
-std::map<TokenType,std::string> TokenTypeMap = {
-    {NUMBER,"NUMBER"},
-    {PLUS,"PLUS"},
-    {MINUS,"MINUS"},
-    {MULTIPLY,"MULTIPLY"},
-    {DIVIDE,"DIVIDE"},
-    {LPAREN,"LPAREN"},
-    {RPAREN,"RPAREN"},
-    {NONE,"NONE"}
-};
+extern std::map<TokenType,std::string> TokenTypeMap;
 
 struct Token {
     TokenType type;
