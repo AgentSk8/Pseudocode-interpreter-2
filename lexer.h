@@ -33,6 +33,7 @@ class Lexer {
         Token generateNumber();
         std::string::iterator itCode; // code iterator
         std::string code;
+        char currentChar;
     public:
         Lexer(std::string Code);
         std::vector<Token> generateTokens();

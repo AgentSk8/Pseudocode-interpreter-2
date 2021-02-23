@@ -1,5 +1,8 @@
 #include "lexer.h"
 
+std::string DIGITS = "0123456789";
+std::string WHITESPACE = " \n\t";
+
 std::map<TokenType,std::string> TokenTypeMap = {
     {NUMBER,"NUMBER"},
     {PLUS,"PLUS"},
@@ -21,6 +24,11 @@ Token::Token(TokenType Type, float Value) {
     value = Value;
 }
 
+std::ostream &operator<<(std::ostream &os, Token const &t) { 
+    std::string type = TokenTypeMap[t.type];
+    return os << type << ": " << t.value;
+}
+
 Lexer::Lexer(std::string Code) {
     itCode = Code.begin();
     code = Code;
@@ -28,5 +36,37 @@ Lexer::Lexer(std::string Code) {
 }
 
 void Lexer::advance() {
-    return;
+    itCode++;
+    currentChar = *itCode;
+
+    if (itCode == code.end())
+        currentChar = '\0';
+}
+
+Token Lexer::generateNumber() {
+    /* ITERATE WHILE IS NUMBER OR DECIMAL */
+    std::string numberStr = "";
+    numberStr += currentChar;
+    short dp_count = 0;
+
+    Lexer::advance();
+
+    while (currentChar != '\0' and (currentChar == '.' or DIGITS.find(currentChar) != std::string::npos))
+    {
+        if (current_char == '.') {
+            dp_count++;
+            if (dp_count > 1) break;
+        }
+
+        numberStr += currentChar;
+        advance();
+    }
+
+    /* SAFETY ZEROES */
+    if (numberStr[0] == '.') numberStr = '0' + numberStr;
+    if (numberStr[-1] == '.') numberStr += '0';
+
+    /* CREATE AND RETURN A NUMBER TOKEN WITH FLOAT VALUE NUMBERSTR */
+    return Token(TokenType::NUMBER, std::stof(numberStr));
+
 }
