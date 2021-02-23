@@ -30,6 +30,7 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
 }
 
 Lexer::Lexer(std::string Code) {
+    Code = ' ' + Code; // safety space as placeholder for advance (needs to init vars)
     itCode = Code.begin();
     code = Code;
     Lexer::advance();
@@ -53,7 +54,7 @@ Token Lexer::generateNumber() {
 
     while (currentChar != '\0' and (currentChar == '.' or DIGITS.find(currentChar) != std::string::npos))
     {
-        if (current_char == '.') {
+        if (currentChar == '.') {
             dp_count++;
             if (dp_count > 1) break;
         }

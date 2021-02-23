@@ -28,7 +28,7 @@ struct Token {
 std::ostream &operator<<(std::ostream &os, Token const &t);
 
 class Lexer {
-    private:
+    public:
         void advance();
         Token generateNumber();
         std::string::iterator itCode; // code iterator
