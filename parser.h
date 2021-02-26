@@ -7,7 +7,7 @@
 
 /* NODETYPE ENUM */
 enum NodeType {
-    NULL = 0,
+    NUL = 0,
     NUMBER = 1,
     ADD = 2,
     SUBTRACT = 3,
@@ -24,11 +24,12 @@ struct Node {
     std::vector<Node> nodes;
 
     Node(NodeType Type, std::vector<Node> Nodes); // for all other nodes
-    Node(NodeType Type, float value); // for factor = number
+    Node(NodeType Type, float Value); // for factor = number
 };
 
 /* OPERATOR "<<" OVERLOAD */
 std::ostream &operator<<(std::ostream &os, Node const &n);
+
 
 /* PARSER CLASS */
 class Parser {

@@ -4,7 +4,7 @@
 std::string DIGITS = "0123456789";
 std::string WHITESPACE = " \n\t";
 
-/* MAP USED FOR TOKENN "<<" OPERATOR OVERLOAD*/
+/* MAP USED FOR TOKEN "<<" OPERATOR OVERLOAD*/
 std::map<TokenType,std::string> TokenTypeMap = {
     {NUMBER,"NUMBER"},
     {PLUS,"PLUS"},
