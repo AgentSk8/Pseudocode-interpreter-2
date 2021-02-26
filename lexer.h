@@ -8,15 +8,16 @@
 
 /* ENUM FOR THE DIFFERENT TYPES OF TOKENS*/
 enum TokenType{
-    NUMBER = 0,
-    PLUS = 1,
-    MINUS = 2,
-    MULTIPLY = 3,
-    DIVIDE = 4,
-    LPAREN = 5,
-    RPAREN = 6,
-    NONE = 7
+    t_NUMBER = 0,
+    t_PLUS = 1,
+    t_MINUS = 2,
+    t_MULTIPLY = 3,
+    t_DIVIDE = 4,
+    t_LPAREN = 5,
+    t_RPAREN = 6,
+    t_NONE = 7
 };
+
 
 /* NEEDS TO BE 'extern' SO IT DOESN'T DUPLICATE SYMBOL*/
 extern std::map<TokenType,std::string> TokenTypeMap;

@@ -7,14 +7,14 @@
 
 /* NODETYPE ENUM */
 enum NodeType {
-    NUL = 0,
-    NUMBER = 1,
-    ADD = 2,
-    SUBTRACT = 3,
-    DIVIDE = 4,
-    MULTIPLY = 5,
-    PLUS = 6,
-    MINUS = 7
+    n_NULL = 0,
+    n_NUMBER = 1,
+    n_ADD = 2,
+    n_SUBTRACT = 3,
+    n_DIVIDE = 4,
+    n_MULTIPLY = 5,
+    n_PLUS = 6,
+    n_MINUS = 7
 };
 
 /* NODE STRUCT */
@@ -25,6 +25,7 @@ struct Node {
 
     Node(NodeType Type, std::vector<Node> Nodes); // for all other nodes
     Node(NodeType Type, float Value); // for factor = number
+    Node(NodeType Type); // null
 };
 
 /* OPERATOR "<<" OVERLOAD */
@@ -34,13 +35,12 @@ std::ostream &operator<<(std::ostream &os, Node const &n);
 /* PARSER CLASS */
 class Parser {
     public:
-        std::vector<Token> tokens; // token array returned from lexer
-        Token currentToken; // current token
-        int cursorPos; // current token index
-
         Parser(std::vector<Token> Tokens); // init
         Node parse(); // parse calls expr
     private:
+        std::vector<Token> tokens; // token array returned from lexer
+        Token currentToken = Token(TokenType::t_NONE); // current token
+        int cursorPos; // current token index
         Node expr(); // calls term on each node and returns + / - node
         Node term(); // calls factor on each node and returns ÷ / * node
         Node factor(); // either returns a number, or whatever expr returns for inside parens

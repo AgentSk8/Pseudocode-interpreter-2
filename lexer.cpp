@@ -6,14 +6,14 @@ std::string WHITESPACE = " \n\t";
 
 /* MAP USED FOR TOKEN "<<" OPERATOR OVERLOAD*/
 std::map<TokenType,std::string> TokenTypeMap = {
-    {NUMBER,"NUMBER"},
-    {PLUS,"PLUS"},
-    {MINUS,"MINUS"},
-    {MULTIPLY,"MULTIPLY"},
-    {DIVIDE,"DIVIDE"},
-    {LPAREN,"LPAREN"},
-    {RPAREN,"RPAREN"},
-    {NONE,"NONE"}
+    {t_NUMBER,"NUMBER"},
+    {t_PLUS,"PLUS"},
+    {t_MINUS,"MINUS"},
+    {t_MULTIPLY,"MULTIPLY"},
+    {t_DIVIDE,"DIVIDE"},
+    {t_LPAREN,"LPAREN"},
+    {t_RPAREN,"RPAREN"},
+    {t_NONE,"NONE"}
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */
@@ -77,7 +77,7 @@ Token Lexer::generateNumber() {
     if (numberStr[-1] == '.') numberStr += '0';
 
     /* CREATE AND RETURN A NUMBER TOKEN WITH FLOAT VALUE NUMBERSTR */
-    return Token(TokenType::NUMBER, std::stof(numberStr));
+    return Token(TokenType::t_NUMBER, std::stof(numberStr));
 
 }
 
@@ -96,25 +96,25 @@ std::vector<Token> Lexer::generateTokens() {
         else {
             char oldChar = currentChar;
             Lexer::advance();
-            Token operatorToken = Token(TokenType::NONE);
+            Token operatorToken = Token(TokenType::t_NONE);
             switch (oldChar) {
                 case '+':
-                    operatorToken = Token(TokenType::PLUS);
+                    operatorToken = Token(TokenType::t_PLUS);
                     break;
                 case '-':
-                    operatorToken = Token(TokenType::MINUS);
+                    operatorToken = Token(TokenType::t_MINUS);
                     break;
                 case '*':
-                    operatorToken = Token(TokenType::MULTIPLY);
+                    operatorToken = Token(TokenType::t_MULTIPLY);
                     break;
                 case '/':
-                    operatorToken = Token(TokenType::DIVIDE);
+                    operatorToken = Token(TokenType::t_DIVIDE);
                     break;
                 case '(':
-                    operatorToken = Token(TokenType::LPAREN);
+                    operatorToken = Token(TokenType::t_LPAREN);
                     break;
                 case ')':
-                    operatorToken = Token(TokenType::RPAREN);
+                    operatorToken = Token(TokenType::t_RPAREN);
                     break;
                 default: // unknown character
                     std::string msg = "Illegal character: ";
