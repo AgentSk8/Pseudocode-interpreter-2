@@ -37,7 +37,8 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
 }
 
 Lexer::Lexer(std::string Code) {
-    Code = ' ' + Code; // safety space as placeholder for advance (needs to init vars)
+    // NOTE: need to fix so no need for 'safety space'
+    Code = ' ' + Code + ' '; // safety space as placeholder for advance (needs to init vars) and at end
     cursorPos = 0;
     code = Code;
     Lexer::advance();
