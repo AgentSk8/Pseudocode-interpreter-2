@@ -1,6 +1,7 @@
 #include<iostream>
 #include "lexer.h"
 #include "parser.h"
+#include "interpreter.h"
 
 int main() {
     std::string expression;
