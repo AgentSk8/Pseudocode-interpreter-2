@@ -1,3 +1,5 @@
 expr    := term +/- term
 term    := factor ÷/* factor
-factor  := number / paren (expr)
+factor  := +- factor
+power   := atom ^ factor
+atom  := number / paren (expr)

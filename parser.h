@@ -13,8 +13,9 @@ enum NodeType {
     n_SUBTRACT = 3,
     n_DIVIDE = 4,
     n_MULTIPLY = 5,
-    n_PLUS = 6,
-    n_MINUS = 7
+    n_POWER = 6,
+    n_PLUS = 7,
+    n_MINUS = 8
 };
 
 /* NODE STRUCT */
@@ -43,7 +44,9 @@ class Parser {
         int cursorPos; // current token index
         Node expr(); // calls term on each node and returns + / - node
         Node term(); // calls factor on each node and returns ÷ / * node
-        Node factor(); // either returns a number, or whatever expr returns for inside parens
+        Node factor(); // +- factor
+        Node power(); // atom ^ factor (right hand is less important)
+        Node atom(); // returns either a number or the expr inside parens
         void raiseError(); // in case of a syntax error (at the end of factor or after parse) throw runtime error
         void advance(); // advance the cursor and check for end
 };

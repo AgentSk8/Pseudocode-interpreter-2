@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "interpreter.h"
+#include <math.h>
 
 /* INIT NUM WITH FLOAT VALUE */
 Number::Number(float Value) {
@@ -40,6 +41,8 @@ Number Interpreter::visit(Node node) {
                     throw std::runtime_error("Math error: Attempted to divide by zero\n");
                 return Number(visit(node.nodes[0]).value / visit(node.nodes[1]).value);
             }
+        case NodeType::n_POWER:
+            return Number(pow(visit(node.nodes[0]).value, visit(node.nodes[1]).value));
         case NodeType::n_PLUS:
             // return a number with the node inside parens (or num) value
             return Number(visit(node.nodes[0]).value);

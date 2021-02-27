@@ -30,6 +30,7 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_SUBTRACT) return os << "(" << n.nodes[0] << "-" << n.nodes[1] << ")";
         else if (t == NodeType::n_MULTIPLY) return os << "(" << n.nodes[0] << "*" << n.nodes[1] << ")";
         else if (t == NodeType::n_DIVIDE) return os << "(" << n.nodes[0] << "/" << n.nodes[1] << ")";
+        else if (t == NodeType::n_POWER) return os << "(" << n.nodes[0] << "^" << n.nodes[1] << ")";
         else if (t == NodeType::n_PLUS) return os << "(+" << n.nodes[0] << ")";
         else if (t == NodeType::n_MINUS) return os << "(-" << n.nodes[0] << ")";
         else return os << "?"; // otherwise return unknown
@@ -92,6 +93,28 @@ Node Parser::term() {
 Node Parser::factor() {
     Token oldToken = currentToken; // need to create a copy because we advance later
 
+    if (oldToken.type == TokenType::t_PLUS) {
+        advance();
+        std::vector<Node> plusValue = {factor()}; // call factor as it will either be +number or +() parentheses
+        return Node(NodeType::n_PLUS, plusValue);
+    } else if (oldToken.type == TokenType::t_MINUS) {
+        advance();
+        std::vector<Node> minusValue = {factor()}; // call factor as it will either be -number or -() parentheses
+        return Node(NodeType::n_MINUS, minusValue);
+    }
+    return power();
+}
+Node Parser::power() {
+    Node result = atom();
+    if (currentToken.type == TokenType::t_POW) {
+        advance();
+        return Node(NodeType::n_POWER, std::vector<Node> {result, factor()});
+    }
+    return result;
+}
+Node Parser::atom() {
+    Token oldToken = currentToken;
+
     if (oldToken.type == TokenType::t_LPAREN) {
         advance(); // advance into expression inside paren
         Node result = expr(); // evaluate this as a new expression
@@ -103,18 +126,13 @@ Node Parser::factor() {
     } else if (oldToken.type == TokenType::t_NUMBER) {
         advance();
         return Node(NodeType::n_NUMBER, oldToken.value); // return node of type number with the token's value
-    } else if (oldToken.type == TokenType::t_PLUS) {
-        advance();
-        std::vector<Node> plusValue = {factor()}; // call factor as it will either be +number or +() parentheses
-        return Node(NodeType::n_PLUS, plusValue);
-    } else if (oldToken.type == TokenType::t_MINUS) {
-        advance();
-        std::vector<Node> minusValue = {factor()}; // call factor as it will either be -number or -() parentheses
-        return Node(NodeType::n_MINUS, minusValue);
     }
+
     raiseError(); // not any of the token types or invalid grammar
+
 }
 void Parser::raiseError() {
+    std::cout <<"CURRENT TOKEN: "<< currentToken;
     throw std::runtime_error("Invalid Syntax.");
 }
 void Parser::advance() {

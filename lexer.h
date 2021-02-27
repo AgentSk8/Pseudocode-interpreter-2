@@ -13,9 +13,10 @@ enum TokenType{
     t_MINUS = 2,
     t_MULTIPLY = 3,
     t_DIVIDE = 4,
-    t_LPAREN = 5,
-    t_RPAREN = 6,
-    t_NONE = 7
+    t_POW = 5,
+    t_LPAREN = 6,
+    t_RPAREN = 7,
+    t_NONE = 8
 };
 
 

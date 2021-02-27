@@ -11,6 +11,7 @@ std::map<TokenType,std::string> TokenTypeMap = {
     {t_MINUS,"MINUS"},
     {t_MULTIPLY,"MULTIPLY"},
     {t_DIVIDE,"DIVIDE"},
+    {t_POW,"POW"},
     {t_LPAREN,"LPAREN"},
     {t_RPAREN,"RPAREN"},
     {t_NONE,"NONE"}
@@ -110,6 +111,9 @@ std::vector<Token> Lexer::generateTokens() {
                     break;
                 case '/':
                     operatorToken = Token(TokenType::t_DIVIDE);
+                    break;
+                case '^':
+                    operatorToken = Token(TokenType::t_POW);
                     break;
                 case '(':
                     operatorToken = Token(TokenType::t_LPAREN);
