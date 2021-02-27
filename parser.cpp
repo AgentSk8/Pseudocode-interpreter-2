@@ -132,7 +132,6 @@ Node Parser::atom() {
 
 }
 void Parser::raiseError() {
-    std::cout <<"CURRENT TOKEN: "<< currentToken;
     throw std::runtime_error("Invalid Syntax.");
 }
 void Parser::advance() {
