@@ -16,9 +16,10 @@ enum TokenType{
     t_POW = 5,
     t_LPAREN = 6,
     t_RPAREN = 7,
-    t_NONE = 8
+    t_EQ = 8,
+    t_IDENTIFIER = 9,
+    t_NONE = 10
 };
-
 
 /* NEEDS TO BE 'extern' SO IT DOESN'T DUPLICATE SYMBOL*/
 extern std::map<TokenType,std::string> TokenTypeMap;
@@ -27,8 +28,10 @@ extern std::map<TokenType,std::string> TokenTypeMap;
 struct Token {
     TokenType type;
     float value;
+    std::string name;
     Token(TokenType Type);
     Token(TokenType Type, float Value);
+    Token(TokenType Type, std::string Name);
 };
 
 /* OPERATOR "<<" OVERLOAD */
@@ -39,7 +42,7 @@ class Lexer {
     private:
         void advance(); // increase the iterator and check for errors
         Token generateNumber(); // generate numbers by advancing through the chars
-        // std::string::iterator itCode; // code iterator
+        Token generateIdentifier(); // generate identifiers by advancing till not alphabet
         int cursorPos;
         std::string code; // keep track of the code so we know when we hit the end
         char currentChar; // keep track of the current character the iterator is pointing at

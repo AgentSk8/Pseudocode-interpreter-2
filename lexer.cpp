@@ -3,7 +3,7 @@
 /* STRING CONSTANTS */
 std::string DIGITS = "0123456789";
 std::string WHITESPACE = " \n\t";
-
+std::string ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 /* MAP USED FOR TOKEN "<<" OPERATOR OVERLOAD*/
 std::map<TokenType,std::string> TokenTypeMap = {
     {t_NUMBER,"NUMBER"},
@@ -14,6 +14,8 @@ std::map<TokenType,std::string> TokenTypeMap = {
     {t_POW,"POW"},
     {t_LPAREN,"LPAREN"},
     {t_RPAREN,"RPAREN"},
+    {t_IDENTIFIER, "IDENTIFIER"},
+    {t_EQ, "EQ"},
     {t_NONE,"NONE"}
 };
 
@@ -26,6 +28,11 @@ Token::Token(TokenType Type) {
 Token::Token(TokenType Type, float Value) {
     type = Type;
     value = Value;
+}
+
+Token::Token(TokenType Type, std::string Name) {
+    type = Type;
+    name = Name;
 }
 
 /* OVERLOAD "<<" OPERATOR FOR TOKEN */
@@ -83,6 +90,16 @@ Token Lexer::generateNumber() {
 
 }
 
+Token Lexer::generateIdentifier() {
+    std::string identifierStr = "";
+    identifierStr += currentChar;
+    while (ALPHABET.find(currentChar) != std::string::npos) {
+        identifierStr += currentChar;
+        advance();
+    }
+    return Token(TokenType::t_IDENTIFIER, identifierStr);
+}
+
 std::vector<Token> Lexer::generateTokens() {
     std::vector<Token> tokens = {}; // array to later return
 
@@ -94,6 +111,15 @@ std::vector<Token> Lexer::generateTokens() {
         /* CHECK FOR NUMBERS */
         else if (currentChar == '.' or DIGITS.find(currentChar) != std::string::npos)
             tokens.push_back(generateNumber());
+        else if (currentChar == '=') {
+            // TODO: support for ==
+            tokens.push_back(Token(TokenType::t_EQ));
+            advance();
+        }
+        /* IF LETTERS, GENERATE IDENTIFIER*/
+        else if (ALPHABET.find(currentChar) != std::string::npos)
+            // TODO: implement keywords
+            tokens.push_back(generateIdentifier());
         /* CHECK FOR OPERATORS */
         else {
             char oldChar = currentChar;
