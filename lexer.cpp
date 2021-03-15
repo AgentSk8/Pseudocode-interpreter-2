@@ -40,6 +40,8 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
     std::string type = TokenTypeMap[t.type];
     if (type == "NUMBER")
         return os << type << ": " << t.value;
+    else if (type == "IDENTIFIER")
+        return os << type << ": " << t.name;
     else
         return os << type;
 }
@@ -92,7 +94,6 @@ Token Lexer::generateNumber() {
 
 Token Lexer::generateIdentifier() {
     std::string identifierStr = "";
-    identifierStr += currentChar;
     while (ALPHABET.find(currentChar) != std::string::npos) {
         identifierStr += currentChar;
         advance();

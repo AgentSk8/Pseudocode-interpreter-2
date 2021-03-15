@@ -1,5 +1,6 @@
-expr    := term +/- term
+expr    := identifier = expr
+        := term +/- term
 term    := factor ÷/* factor
 factor  := +- factor
 power   := atom ^ factor
-atom  := number / paren (expr)
+atom  := number | paren (expr) | identifier

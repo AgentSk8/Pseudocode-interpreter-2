@@ -13,8 +13,8 @@ int main() {
         Lexer lexer = Lexer(expression);
         std::vector<Token> tokens = lexer.generateTokens();
 
-        // Parser parser = Parser(tokens);
-        // Node tree = parser.parse();
+        Parser parser = Parser(tokens);
+        Node tree = parser.parse();
 
         /* DEBUGGING LEXER AND PARSER */
         if (debug) {
@@ -27,7 +27,7 @@ int main() {
                     std::cout << token << ", ";
             }
             std::cout << "]\n";
-            // std::cout << "AST: " << tree << "\n";
+            std::cout << "AST: " << tree << "\n";
         }
         
         // Interpreter interpreter = // Interpreter();

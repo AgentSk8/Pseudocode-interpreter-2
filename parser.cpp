@@ -11,6 +11,11 @@ Node::Node(NodeType Type, std::vector<Node> Nodes){
     type = Type;
     nodes = Nodes;
 }
+Node::Node(NodeType Type, std::string Name,std::vector<Node> Nodes){
+    type = Type;
+    name = Name;
+    nodes = Nodes;
+}
 Node::Node(NodeType Type, float Value){
     type = Type;
     value = Value;
@@ -33,6 +38,7 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_POWER) return os << "(" << n.nodes[0] << "^" << n.nodes[1] << ")";
         else if (t == NodeType::n_PLUS) return os << "(+" << n.nodes[0] << ")";
         else if (t == NodeType::n_MINUS) return os << "(-" << n.nodes[0] << ")";
+        else if (t == NodeType::n_VAR_ASSIGN) return os <<"("<< n.name << "=" << n.nodes[0] << ")";
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -58,6 +64,19 @@ Node Parser::parse(){
 }
 
 Node Parser::expr() {
+    // check for var declaration
+    if (currentToken.type == TokenType::t_IDENTIFIER) {
+        Token identifierToken = currentToken;
+        advance();
+        if (currentToken.type == TokenType::t_EQ) {
+            advance();
+            std::vector<Node> children = {expr()};
+            return Node(NodeType::n_VAR_ASSIGN, identifierToken.name, children);
+        } else { // if identifier is not followed by equals throw error
+            raiseError();
+        }
+    }
+
     Node result = term(); // next top priority (term */÷)
 
     while (currentToken.type == TokenType::t_MINUS or currentToken.type == TokenType::t_PLUS) { // so as long as we are in a sum / subtraction

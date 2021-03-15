@@ -15,7 +15,8 @@ enum NodeType {
     n_MULTIPLY = 5,
     n_POWER = 6,
     n_PLUS = 7,
-    n_MINUS = 8
+    n_MINUS = 8,
+    n_VAR_ASSIGN
 };
 
 /* NODE STRUCT */
@@ -23,9 +24,10 @@ struct Node {
     NodeType type;
     float value;
     std::vector<Node> nodes;
-
+    std::string name;
     Node(NodeType Type, std::vector<Node> Nodes); // for all other nodes
     Node(NodeType Type, float Value); // for factor = number
+    Node(NodeType Type, std::string Name,std::vector<Node> Nodes); // for var assign
     Node(NodeType Type); // null
 };
 
