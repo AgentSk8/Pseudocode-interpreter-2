@@ -16,7 +16,7 @@ enum NodeType {
     n_POWER = 6,
     n_PLUS = 7,
     n_MINUS = 8,
-    n_VAR_ASSIGN
+    n_VAR_ASSIGN = 9
 };
 
 /* NODE STRUCT */

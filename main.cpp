@@ -30,9 +30,9 @@ int main() {
             std::cout << "AST: " << tree << "\n";
         }
         
-        // Interpreter interpreter = // Interpreter();
-        // Number result = // interpreter.visit(tree);
+        Interpreter interpreter = Interpreter();
+        Variable result = interpreter.visit(tree);
 
-        // std::cout << result << "\n";
+        std::cout << result.number << "\n";
     }
 }

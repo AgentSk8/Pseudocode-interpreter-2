@@ -112,11 +112,6 @@ std::vector<Token> Lexer::generateTokens() {
         /* CHECK FOR NUMBERS */
         else if (currentChar == '.' or DIGITS.find(currentChar) != std::string::npos)
             tokens.push_back(generateNumber());
-        else if (currentChar == '=') {
-            // TODO: support for ==
-            tokens.push_back(Token(TokenType::t_EQ));
-            advance();
-        }
         /* IF LETTERS, GENERATE IDENTIFIER*/
         else if (ALPHABET.find(currentChar) != std::string::npos)
             // TODO: implement keywords
@@ -147,6 +142,11 @@ std::vector<Token> Lexer::generateTokens() {
                     break;
                 case ')':
                     operatorToken = Token(TokenType::t_RPAREN);
+                    break;
+                case '<':
+                    if (currentChar == '-')
+                        advance();
+                        operatorToken = Token(TokenType::t_EQ);
                     break;
                 default: // unknown character
                     std::string msg = "Illegal character: ";
