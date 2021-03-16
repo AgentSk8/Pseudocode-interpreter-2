@@ -19,19 +19,32 @@ struct Variable {
 
 struct SymbolTable {
     std::map<std::string, Variable> m;
+    SymbolTable* parent;
+    bool null;
 
+    SymbolTable(SymbolTable* Parent);
     SymbolTable();
+    SymbolTable(bool nul);
     bool includes(std::string key);
     void set(std::string key, Variable value);
+    void remove(std::string key);
     Variable get(std::string key);
-}
+};
 
 /* NUMBER OPERATOR "<<" OVERLOAD */
 std::ostream &operator<<(std::ostream &os, Number const &n);
 
+/* SYMBOLTABLE OPERATOR "<<" OVERLOAD */
+std::ostream &operator<<(std::ostream &os, SymbolTable const &st);
+
+/* VARIABLE OPERATOR "<<" OVERLOAD */
+std::ostream &operator<<(std::ostream &os, Variable const &v);
+
 /* INTERPRETER CLASS */
 class Interpreter {
+    SymbolTable& globalSymbolTable;
     public:
+        Interpreter(SymbolTable& GlobalSymbolTable) : globalSymbolTable(GlobalSymbolTable) {}
         Variable visit(Node node); // visit each node and return result in parent node
 };
 

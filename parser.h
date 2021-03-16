@@ -16,7 +16,8 @@ enum NodeType {
     n_POWER = 6,
     n_PLUS = 7,
     n_MINUS = 8,
-    n_VAR_ASSIGN = 9
+    n_VAR_ASSIGN = 9,
+    n_VAR_ACCESS = 10
 };
 
 /* NODE STRUCT */
@@ -28,6 +29,7 @@ struct Node {
     Node(NodeType Type, std::vector<Node> Nodes); // for all other nodes
     Node(NodeType Type, float Value); // for factor = number
     Node(NodeType Type, std::string Name,std::vector<Node> Nodes); // for var assign
+    Node(NodeType Type, std::string Name); // for var access
     Node(NodeType Type); // null
 };
 
@@ -51,5 +53,6 @@ class Parser {
         Node atom(); // returns either a number or the expr inside parens
         void raiseError(); // in case of a syntax error (at the end of factor or after parse) throw runtime error
         void advance(); // advance the cursor and check for end
+        void devance(); // undo an advance
 };
 #endif

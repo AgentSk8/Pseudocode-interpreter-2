@@ -9,6 +9,7 @@ Number::Number(float Value) {
 
 /* INIT NUM WITH STRING (ERROR) */
 Number::Number(std::string msg) {
+    value = -1;
     throw std::runtime_error(msg);
 }
 
@@ -17,22 +18,69 @@ std::ostream &operator<<(std::ostream &os, Number const &n) {
     return os << n.value;
 }
 
-SymbolTable::SymbolTable() {}
+/* CHILD SYMBOL TABLE WITH GLOBAL PARENT */
+SymbolTable::SymbolTable(SymbolTable* Parent) {
+    // NOTE: since pointer, use * to get value, & to get address and -> to get properties
+    parent = Parent;
+}
 
+/* GLOBAL SYMBOL TABLE WITH NO PARENT*/
+SymbolTable::SymbolTable(bool nul) {
+    null = nul;
+}
+
+/* SYMBOL TABLE OF NULL VALUE*/
+SymbolTable::SymbolTable() {
+    SymbolTable tmp = SymbolTable(true);
+    parent = &tmp;
+}
+
+/* DELETE VAR */
+void SymbolTable::remove(std::string key) {
+    if (includes(key)) m.erase(m.find(key));
+}
+
+/* IF KEY IN SYMBOL TABLE */
 bool SymbolTable::includes(std::string key) {
     return m.find(key) != m.end();
 }
+
+/* SET KEY TO VALUE IN SYMBOL TABLE */
 void SymbolTable::set(std::string key, Variable value) {
-    m[key] = value;
+    remove(key); // redefinitions
+    m.insert(std::pair<std::string,Variable>(key,value));
 }
+
+/* SYMBOL TABLE "<<" OPERATOR - PRINTS INTERIOR MAP*/
+std::ostream &operator<<(std::ostream &os, SymbolTable const &st) {
+    for(std::map<std::string,Variable>::const_iterator it = st.m.begin(); it != st.m.end(); ++it) {
+       os << it->first << " " << it->second << "\n";
+    }
+    return os;
+}
+
+/* RETURN VARIABLE FROM THIS (OR PARENTS) SYMBOL TABLE*/
 Variable SymbolTable::get(std::string key) {
-    return m.find(key) -> second;
+    if (includes(key)) { // If key in this symbol table
+        Variable tmp = m.find(key) -> second;
+        return tmp; // Return value
+    } else {
+        if (parent -> null) { // If there is no parent
+            return Variable(Number("Unexpected identifier" + key)); // Throw an exception
+        }
+        return parent -> get(key); // Otherwise try to get from parent
+    }
 }
 
 /* FOR NUM TYPE VARS */
 Variable::Variable(Number number_) {
     number = number_;
     value = number.value;
+}
+
+/* SYMBOL TABLE "<<" OPERATOR - PRINTS INTERIOR MAP*/
+std::ostream &operator<<(std::ostream &os, Variable const &v) {
+    return os << v.number;
 }
 
 /* RECURSIVELY CALL VISIT ON EACH NODE AND OPERATE WITH SAID VALUES*/
@@ -70,9 +118,15 @@ Variable Interpreter::visit(Node node) {
             // return a number with the node inside parens (or num) negative value 
             return Variable(Number(-visit(node.nodes[0]).value));
         case NodeType::n_VAR_ASSIGN:
-            return Variable(Number(visit(node.nodes[0]).value));
+            {
+                Variable tmp = Variable(Number(visit(node.nodes[0]).value));
+                globalSymbolTable.set(node.name, tmp);
+                return tmp;
+            }
+        case NodeType::n_VAR_ACCESS:
+            return globalSymbolTable.get(node.name);
         default:
-            return Number("Runtime error.");
+            return Variable(Number("Runtime error."));
 
     };
 

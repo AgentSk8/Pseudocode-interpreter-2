@@ -144,10 +144,12 @@ std::vector<Token> Lexer::generateTokens() {
                     operatorToken = Token(TokenType::t_RPAREN);
                     break;
                 case '<':
-                    if (currentChar == '-')
+                    if (currentChar == '-') {
                         advance();
                         operatorToken = Token(TokenType::t_EQ);
-                    break;
+                        break;
+                    }
+                    oldChar = currentChar;
                 default: // unknown character
                     std::string msg = "Illegal character: ";
                     msg += oldChar;

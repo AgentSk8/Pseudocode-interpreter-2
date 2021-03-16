@@ -16,6 +16,10 @@ Node::Node(NodeType Type, std::string Name,std::vector<Node> Nodes){
     name = Name;
     nodes = Nodes;
 }
+Node::Node(NodeType Type, std::string Name){
+    type = Type;
+    name = Name;
+}
 Node::Node(NodeType Type, float Value){
     type = Type;
     value = Value;
@@ -39,6 +43,7 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_PLUS) return os << "(+" << n.nodes[0] << ")";
         else if (t == NodeType::n_MINUS) return os << "(-" << n.nodes[0] << ")";
         else if (t == NodeType::n_VAR_ASSIGN) return os <<"("<< n.name << "=" << n.nodes[0] << ")";
+        else if (t == NodeType::n_VAR_ACCESS) return os << n.name;
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -72,8 +77,8 @@ Node Parser::expr() {
             advance();
             std::vector<Node> children = {expr()};
             return Node(NodeType::n_VAR_ASSIGN, identifierToken.name, children);
-        } else { // if identifier is not followed by equals throw error
-            raiseError();
+        } else {
+            devance();
         }
     }
 
@@ -145,8 +150,10 @@ Node Parser::atom() {
     } else if (oldToken.type == TokenType::t_NUMBER) {
         advance();
         return Node(NodeType::n_NUMBER, oldToken.value); // return node of type number with the token's value
+    } else if (oldToken.type == TokenType::t_IDENTIFIER) { // access the identifier
+        advance();
+        return Node(NodeType::n_VAR_ACCESS, oldToken.name);
     }
-
     raiseError(); // not any of the token types or invalid grammar
 
 }
@@ -158,4 +165,10 @@ void Parser::advance() {
     cursorPos++;
     if (cursorPos < tokens.size()) currentToken = tokens[cursorPos];
     else currentToken = Token(TokenType::t_NONE);
+}
+void Parser::devance() {
+    // NOTE: this would also have to be updated to use iterators
+    cursorPos--;
+    if (cursorPos >= 0) currentToken = tokens[cursorPos];
+    else throw std::runtime_error("Invalid devance.");
 }
