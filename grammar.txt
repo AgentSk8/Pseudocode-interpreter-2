@@ -1,6 +1,10 @@
-expr    := identifier = expr
-        := term +/- term
-term    := factor ÷/* factor
-factor  := +- factor
-power   := atom ^ factor
+expr            := identifier, eq, expr
+                := comp-expr (AND/OR) comp-expr
+
+comp-expr       := NOT comp-expr
+                := arith-expr (bool-op) arith-expr
+arith-expr      := term +/- term
+term            := factor ÷/* factor
+factor          := +- factor
+power           := atom ^ factor
 atom  := number | paren (expr) | identifier
