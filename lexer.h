@@ -18,7 +18,14 @@ enum TokenType{
     t_RPAREN = 7,
     t_EQ = 8,
     t_IDENTIFIER = 9,
-    t_NONE = 10
+    t_NONE = 10,
+    t_EE = 11, // boolean
+    t_NE = 12,
+    t_LT = 13,
+    t_GT = 14,
+    t_LTE = 15, // less than or equal to
+    t_GTE = 16,
+    t_KEYWORD = 17
 };
 
 /* NEEDS TO BE 'extern' SO IT DOESN'T DUPLICATE SYMBOL*/

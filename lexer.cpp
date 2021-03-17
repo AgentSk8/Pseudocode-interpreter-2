@@ -1,9 +1,11 @@
 #include "lexer.h"
+#include <vector>
 
 /* STRING CONSTANTS */
 std::string DIGITS = "0123456789";
 std::string WHITESPACE = " \n\t";
 std::string ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 /* MAP USED FOR TOKEN "<<" OPERATOR OVERLOAD*/
 std::map<TokenType,std::string> TokenTypeMap = {
     {t_NUMBER,"NUMBER"},
@@ -16,7 +18,21 @@ std::map<TokenType,std::string> TokenTypeMap = {
     {t_RPAREN,"RPAREN"},
     {t_IDENTIFIER, "IDENTIFIER"},
     {t_EQ, "EQ"},
-    {t_NONE,"NONE"}
+    {t_NONE,"NONE"},
+    {t_EE,"BOOL_EQ"},
+    {t_NE,"NOT_EQ"},
+    {t_LT,"LT"},
+    {t_GT,"GT"},
+    {t_LTE,"LTE"},
+    {t_GTE,"GTE"},
+    {t_KEYWORD,"KEYWORD"}
+};
+
+/* VECTOR TO STORE KEYWORDS */
+std::vector<std::string> keywords = {
+    "AND",
+    "OR",
+    "NOT"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */
@@ -147,9 +163,27 @@ std::vector<Token> Lexer::generateTokens() {
                     if (currentChar == '-') {
                         advance();
                         operatorToken = Token(TokenType::t_EQ);
-                        break;
+                    } else if (currentChar == '>') {
+                        advance();
+                        operatorToken = Token(TokenType::t_NE);
+                    } else if (currentChar == '=') {
+                        advance();
+                        operatorToken = Token(TokenType::t_LTE);
+                    } else {
+                        operatorToken = Token(TokenType::t_LT);
                     }
-                    oldChar = currentChar;
+                    break;
+                case '>':
+                    if (currentChar == '=') {
+                        advance();
+                        operatorToken = Token(TokenType::t_GTE);
+                    } else {
+                        operatorToken = Token(TokenType::t_GT);
+                    }
+                    break;
+                case '=':
+                    operatorToken = Token(TokenType::t_EE);
+                    break;
                 default: // unknown character
                     std::string msg = "Illegal character: ";
                     msg += oldChar;
