@@ -56,7 +56,7 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
     std::string type = TokenTypeMap[t.type];
     if (type == "NUMBER")
         return os << type << ": " << t.value;
-    else if (type == "IDENTIFIER")
+    else if (type == "IDENTIFIER" or type == "KEYWORD")
         return os << type << ": " << t.name;
     else
         return os << type;
@@ -108,13 +108,17 @@ Token Lexer::generateNumber() {
 
 }
 
-Token Lexer::generateIdentifier() {
-    std::string identifierStr = "";
+Token Lexer::generateWord() {
+    std::string wordStr = "";
     while (ALPHABET.find(currentChar) != std::string::npos) {
-        identifierStr += currentChar;
+        wordStr += currentChar;
         advance();
     }
-    return Token(TokenType::t_IDENTIFIER, identifierStr);
+    // give keywords priority
+    if (std::find(keywords.begin(), keywords.end(), wordStr) != keywords.end())
+        return Token(TokenType::t_KEYWORD, wordStr);
+    else
+        return Token(TokenType::t_IDENTIFIER, wordStr);
 }
 
 std::vector<Token> Lexer::generateTokens() {
@@ -128,10 +132,9 @@ std::vector<Token> Lexer::generateTokens() {
         /* CHECK FOR NUMBERS */
         else if (currentChar == '.' or DIGITS.find(currentChar) != std::string::npos)
             tokens.push_back(generateNumber());
-        /* IF LETTERS, GENERATE IDENTIFIER*/
+        /* IF LETTERS, GENERATE IDENTIFIER OR KEYWORD*/
         else if (ALPHABET.find(currentChar) != std::string::npos)
-            // TODO: implement keywords
-            tokens.push_back(generateIdentifier());
+            tokens.push_back(generateWord());
         /* CHECK FOR OPERATORS */
         else {
             char oldChar = currentChar;

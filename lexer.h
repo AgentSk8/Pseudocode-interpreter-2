@@ -49,7 +49,7 @@ class Lexer {
     private:
         void advance(); // increase the iterator and check for errors
         Token generateNumber(); // generate numbers by advancing through the chars
-        Token generateIdentifier(); // generate identifiers by advancing till not alphabet
+        Token generateWord(); // generate identifiers / keywords by advancing till not alphabet
         int cursorPos;
         std::string code; // keep track of the code so we know when we hit the end
         char currentChar; // keep track of the current character the iterator is pointing at
