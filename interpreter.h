@@ -27,6 +27,7 @@ struct SymbolTable {
     SymbolTable(bool nul);
     bool includes(std::string key);
     void set(std::string key, Variable value);
+    void set(std::string key, float value);
     void remove(std::string key);
     Variable get(std::string key);
 };

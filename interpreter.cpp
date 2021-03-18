@@ -51,6 +51,12 @@ void SymbolTable::set(std::string key, Variable value) {
     m.insert(std::pair<std::string,Variable>(key,value));
 }
 
+/* SET KEY TO FLOAT VALUE IN SYMBOL TABLE */
+void SymbolTable::set(std::string key, float value) {
+    remove(key); // redefinitions
+    m.insert(std::pair<std::string,Variable>(key,Variable(Number(value))));
+}
+
 /* SYMBOL TABLE "<<" OPERATOR - PRINTS INTERIOR MAP*/
 std::ostream &operator<<(std::ostream &os, SymbolTable const &st) {
     for(std::map<std::string,Variable>::const_iterator it = st.m.begin(); it != st.m.end(); ++it) {

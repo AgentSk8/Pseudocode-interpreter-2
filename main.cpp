@@ -8,6 +8,10 @@ bool debug = false;
 std::string expression;
 int main() {
     SymbolTable smbt = SymbolTable();
+    /* SET GLOBAL VARIABLES */
+    smbt.set("TRUE",1);
+    smbt.set("FALSE",0);
+
     int c=0;
     while (1) {
         std::cout << ">>> ";
