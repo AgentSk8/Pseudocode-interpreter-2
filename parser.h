@@ -17,7 +17,16 @@ enum NodeType {
     n_PLUS = 7,
     n_MINUS = 8,
     n_VAR_ASSIGN = 9,
-    n_VAR_ACCESS = 10
+    n_VAR_ACCESS = 10,
+    n_AND = 11,
+    n_OR = 12,
+    n_NOT = 13,
+    n_GT = 14,
+    n_LT = 15,
+    n_GTE = 16,
+    n_LTE = 17,
+    n_EE = 18,
+    n_NE = 19
 };
 
 /* NODE STRUCT */
@@ -46,7 +55,9 @@ class Parser {
         std::vector<Token> tokens; // token array returned from lexer
         Token currentToken = Token(TokenType::t_NONE); // current token
         int cursorPos; // current token index
-        Node expr(); // calls term on each node and returns + / - node
+        Node expr(); // calls comp_expr on each node and returns identifier / logic node
+        Node comp_expr(); // calls arith_expr on each node and returns not / boolop node
+        Node arith_expr(); // calls term on each node and returns + / - node
         Node term(); // calls factor on each node and returns ÷ / * node
         Node factor(); // +- factor
         Node power(); // atom ^ factor (right hand is less important)

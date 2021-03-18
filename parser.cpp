@@ -44,6 +44,15 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_MINUS) return os << "(-" << n.nodes[0] << ")";
         else if (t == NodeType::n_VAR_ASSIGN) return os <<"("<< n.name << "=" << n.nodes[0] << ")";
         else if (t == NodeType::n_VAR_ACCESS) return os << n.name;
+        else if (t == NodeType::n_AND) return os << "(" << n.nodes[0] << " && " << n.nodes[1] << ")";
+        else if (t == NodeType::n_OR) return os << "(" << n.nodes[0] << " || " << n.nodes[1] << ")";
+        else if (t == NodeType::n_NOT) return os << "!(" << n.nodes[0] << ")";
+        else if (t == NodeType::n_GT) return os << "(" << n.nodes[0] << ">" << n.nodes[1] << ")";
+        else if (t == NodeType::n_LT) return os << "(" << n.nodes[0] << "<" << n.nodes[1] << ")";
+        else if (t == NodeType::n_GTE) return os << "(" << n.nodes[0] << ">=" << n.nodes[1] << ")";
+        else if (t == NodeType::n_LTE) return os << "(" << n.nodes[0] << "<=" << n.nodes[1] << ")";
+        else if (t == NodeType::n_EE) return os << "(" << n.nodes[0] << "==" << n.nodes[1] << ")";
+        else if (t == NodeType::n_NE) return os << "(" << n.nodes[0] << "!=" << n.nodes[1] << ")";
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -82,12 +91,82 @@ Node Parser::expr() {
         }
     }
 
+    Node result = comp_expr(); // comparison expressions
+
+    while (currentToken.type == TokenType::t_KEYWORD) {
+        if (currentToken.name == "AND") {
+            advance();
+
+            std::vector<Node> children = {result, comp_expr()}; // remember rule is compexpr and/or compexpr
+            result = Node(NodeType::n_AND, children);
+        } else if (currentToken.name == "OR") {
+            advance();
+
+            std::vector<Node> children = {result, comp_expr()};
+            result = Node(NodeType::n_OR, children);
+        } else break;
+    }
+
+    return result;
+    
+}
+Node Parser::comp_expr() {
+    if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "NOT") {
+        advance();
+        std::vector<Node> children = { comp_expr() }; // NOT (comparison)
+        return Node(NodeType::n_NOT, children);
+    }
+    Node result = arith_expr(); // arith expr (>|<|=|<>) arith expr
+    std::vector<TokenType> boolOps = {TokenType::t_GT, TokenType::t_GTE, TokenType::t_LT, TokenType::t_LTE, TokenType::t_EE, TokenType::t_NE};
+    while (std::find(boolOps.begin(),boolOps.end(),currentToken.type) != boolOps.end()) { // while boolop
+        switch (currentToken.type) {
+            case TokenType::t_GT: {
+                advance();
+                std::vector<Node> children = {result, arith_expr()};
+                result = Node(NodeType::n_GT, children);
+                break;
+            }
+            case TokenType::t_LT: {
+                advance();
+                std::vector<Node> children = {result, arith_expr()};
+                result = Node(NodeType::n_LT, children);
+                break;
+            }
+            case TokenType::t_GTE: {
+                advance();
+                std::vector<Node> children = {result, arith_expr()};
+                result = Node(NodeType::n_GTE, children);
+                break;
+            }
+            case TokenType::t_LTE: {
+                advance();
+                std::vector<Node> children = {result, arith_expr()};
+                result = Node(NodeType::n_LTE, children);
+                break;
+            }
+            case TokenType::t_EE: {
+                advance();
+                std::vector<Node> children = {result, arith_expr()};
+                result = Node(NodeType::n_EE, children);
+                break;
+            }
+            case TokenType::t_NE: {
+                advance();
+                std::vector<Node> children = {result, arith_expr()};
+                result = Node(NodeType::n_NE, children);
+                break;
+            }
+            default: break;
+        }
+    }
+    return result;
+}
+Node Parser::arith_expr() {
     Node result = term(); // next top priority (term */÷)
 
     while (currentToken.type == TokenType::t_MINUS or currentToken.type == TokenType::t_PLUS) { // so as long as we are in a sum / subtraction
         if (currentToken.type == TokenType::t_PLUS) {
             advance();
-
             std::vector<Node> children = {result, term()}; // child nodes of add node
             result = Node(NodeType::n_ADD, children);
         } else if (currentToken.type == TokenType::t_MINUS) {
