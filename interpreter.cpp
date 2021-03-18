@@ -125,6 +125,24 @@ Variable Interpreter::visit(Node node) {
             }
         case NodeType::n_VAR_ACCESS:
             return globalSymbolTable.get(node.name);
+        case NodeType::n_EE:
+            return Variable(Number(visit(node.nodes[0]).value == visit(node.nodes[1]).value));
+        case NodeType::n_NE:
+            return Variable(Number(visit(node.nodes[0]).value != visit(node.nodes[1]).value));
+        case NodeType::n_LT:
+            return Variable(Number(visit(node.nodes[0]).value < visit(node.nodes[1]).value));
+        case NodeType::n_GT:
+            return Variable(Number(visit(node.nodes[0]).value > visit(node.nodes[1]).value));
+        case NodeType::n_LTE:
+            return Variable(Number(visit(node.nodes[0]).value <= visit(node.nodes[1]).value));
+        case NodeType::n_GTE:
+            return Variable(Number(visit(node.nodes[0]).value >= visit(node.nodes[1]).value));
+        case NodeType::n_AND:
+            return Variable(Number(visit(node.nodes[0]).value and visit(node.nodes[1]).value));
+        case NodeType::n_OR:
+            return Variable(Number(visit(node.nodes[0]).value or visit(node.nodes[1]).value));
+        case NodeType::n_NOT:
+            return Variable(Number(not visit(node.nodes[0]).value));
         default:
             return Variable(Number("Runtime error."));
 

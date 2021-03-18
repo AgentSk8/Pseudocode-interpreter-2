@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "interpreter.h"
 
-bool debug = true;
+bool debug = false;
 
 std::string expression;
 int main() {
@@ -32,9 +32,9 @@ int main() {
             std::cout << "]\n";
             std::cout << "AST: " << tree << "\n";
         }
-        // Interpreter interpreter = Interpreter(smbt);
-        // Variable result = interpreter.visit(tree);
+        Interpreter interpreter = Interpreter(smbt);
+        Variable result = interpreter.visit(tree);
 
-        // std::cout << result.number << "\n";
+        std::cout << result.number << "\n";
     }
 }
