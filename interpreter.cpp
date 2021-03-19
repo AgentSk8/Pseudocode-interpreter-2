@@ -149,6 +149,16 @@ Variable Interpreter::visit(Node node) {
             return Variable(Number(visit(node.nodes[0]).value or visit(node.nodes[1]).value));
         case NodeType::n_NOT:
             return Variable(Number(not visit(node.nodes[0]).value));
+        case NodeType::n_IF: {
+            bool result = visit(node.nodes[0]).value; // get the condition
+            if (result) return Variable(Number(visit(node.nodes[1]).value));
+            return Variable(Number(0));
+        }
+        case NodeType::n_IF_ELSE: {
+            bool result = visit(node.nodes[0]).value;
+            if (result) return Variable(Number(visit(node.nodes[1]).value));
+            return Variable(Number(visit(node.nodes[2]).value));
+        }
         default:
             return Variable(Number("Runtime error."));
 

@@ -32,7 +32,11 @@ std::map<TokenType,std::string> TokenTypeMap = {
 std::vector<std::string> keywords = {
     "AND",
     "OR",
-    "NOT"
+    "NOT",
+    "IF",
+    "THEN",
+    "ELSE",
+    "ENDIF"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */

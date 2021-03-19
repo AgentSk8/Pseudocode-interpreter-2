@@ -7,4 +7,6 @@ arith-expr      := term +/- term
 term            := factor ÷/* factor
 factor          := +- factor
 power           := atom ^ factor
-atom  := number | paren (expr) | identifier
+atom            := number | paren (expr) | identifier
+                := if-expr
+if-expr         := IF expr THEN expr (ELSE expr) ENDIF

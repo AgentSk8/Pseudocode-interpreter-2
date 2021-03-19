@@ -53,6 +53,8 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_LTE) return os << "(" << n.nodes[0] << "<=" << n.nodes[1] << ")";
         else if (t == NodeType::n_EE) return os << "(" << n.nodes[0] << "==" << n.nodes[1] << ")";
         else if (t == NodeType::n_NE) return os << "(" << n.nodes[0] << "!=" << n.nodes[1] << ")";
+        else if (t == NodeType::n_IF) return os << "(" << n.nodes[0] << "?" << n.nodes[1] << ")";
+        else if (t == NodeType::n_IF_ELSE) return os << "(" << n.nodes[0] << "?" << n.nodes[1] << ":" << n.nodes[2] << ")"; 
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -110,6 +112,7 @@ Node Parser::expr() {
     return result;
     
 }
+
 Node Parser::comp_expr() {
     if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "NOT") {
         advance();
@@ -161,6 +164,7 @@ Node Parser::comp_expr() {
     }
     return result;
 }
+
 Node Parser::arith_expr() {
     Node result = term(); // next top priority (term */÷)
 
@@ -193,6 +197,7 @@ Node Parser::term() {
     }
     return result;
 }
+
 Node Parser::factor() {
     Token oldToken = currentToken; // need to create a copy because we advance later
 
@@ -207,6 +212,7 @@ Node Parser::factor() {
     }
     return power();
 }
+
 Node Parser::power() {
     Node result = atom();
     if (currentToken.type == TokenType::t_POW) {
@@ -215,9 +221,9 @@ Node Parser::power() {
     }
     return result;
 }
+
 Node Parser::atom() {
     Token oldToken = currentToken;
-
     if (oldToken.type == TokenType::t_LPAREN) {
         advance(); // advance into expression inside paren
         Node result = expr(); // evaluate this as a new expression
@@ -233,8 +239,36 @@ Node Parser::atom() {
         advance();
         return Node(NodeType::n_VAR_ACCESS, oldToken.name);
     }
-    raiseError(); // not any of the token types or invalid grammar
+    return if_expr();
+}
 
+Node Parser::if_expr() {
+    Token oldToken = currentToken;
+    if (oldToken.type == TokenType::t_KEYWORD && oldToken.name == "IF") {
+        advance();
+        Node comparison = expr();
+        Node trueExpr = Node(NodeType::n_NULL);
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "THEN") {
+            advance();
+            trueExpr = expr();
+        } else {
+            raiseError();
+        }
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ELSE") {
+            advance();
+            Node falseExpr = expr();
+            if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ENDIF") {
+                std::vector<Node> children = {comparison, trueExpr, falseExpr};
+                advance();
+                return Node(NodeType::n_IF_ELSE, children);
+            }
+        } else if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ENDIF") {
+            std::vector<Node> children = {comparison, trueExpr};
+            advance();
+            return Node(NodeType::n_IF, children);
+        }
+    }
+    raiseError(); // nothing
 }
 void Parser::raiseError() {
     throw std::runtime_error("Invalid Syntax.");
