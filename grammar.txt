@@ -3,10 +3,22 @@ expr            := identifier, eq, expr
 
 comp-expr       := NOT comp-expr
                 := arith-expr (bool-op) arith-expr
+
 arith-expr      := term +/- term
+
 term            := factor ÷/* factor
+
 factor          := +- factor
+
 power           := atom ^ factor
+
 atom            := number | paren (expr) | identifier
                 := if-expr
+                := for-expr
+                := while-expr
+
 if-expr         := IF expr THEN expr (ELSE expr) ENDIF
+
+for-expr        := FOR  IDENTIFIER <- expr TO expr ... NEXT IDENTIFIER
+
+while-expr      := WHILE expr DO ... ENDWHILE

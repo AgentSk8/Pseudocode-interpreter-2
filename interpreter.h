@@ -6,8 +6,10 @@
 /* NUMBER STRUCT */
 struct Number {
     float value; // holds a float value
+    bool nret; // return val?
     Number(float Value);
     Number(std::string msg);
+    Number();
 };
 
 struct Variable {

@@ -28,7 +28,9 @@ enum NodeType {
     n_EE = 18,
     n_NE = 19,
     n_IF = 20,
-    n_IF_ELSE = 21
+    n_IF_ELSE = 21,
+    n_FOR = 22,
+    n_WHILE = 23
 };
 
 /* NODE STRUCT */
@@ -65,6 +67,8 @@ class Parser {
         Node power(); // atom ^ factor (right hand is less important)
         Node atom(); // returns either a number or the expr inside parens
         Node if_expr(); // IF <condition> THEN <expression> ELSE <expression>
+        Node for_expr(); // FOR <expr:assignment> TO <expr:end> <expr:action> NEXT <identifier>
+        Node while_expr(); // WHILE <condition> DO <expression> ENDWHILE
         void raiseError(); // in case of a syntax error (at the end of factor or after parse) throw runtime error
         void advance(); // advance the cursor and check for end
         void devance(); // undo an advance

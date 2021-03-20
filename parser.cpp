@@ -55,6 +55,8 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_NE) return os << "(" << n.nodes[0] << "!=" << n.nodes[1] << ")";
         else if (t == NodeType::n_IF) return os << "(" << n.nodes[0] << "?" << n.nodes[1] << ")";
         else if (t == NodeType::n_IF_ELSE) return os << "(" << n.nodes[0] << "?" << n.nodes[1] << ":" << n.nodes[2] << ")"; 
+        else if (t == NodeType::n_FOR) return os << "(for(" << n.nodes[0] << "->" << n.nodes[1] << ")::(" << n.nodes[2] << ")" << "next)";
+        else if (t == NodeType::n_WHILE) return os << "(while(" << n.nodes[0] << ")::(" << n.nodes[1] << ")" << "next)";
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -239,7 +241,10 @@ Node Parser::atom() {
         advance();
         return Node(NodeType::n_VAR_ACCESS, oldToken.name);
     }
-    return if_expr();
+    if (oldToken.name == "IF") return if_expr();
+    else if (oldToken.name == "FOR") return for_expr();
+    else if (oldToken.name == "WHILE") return while_expr();
+    return Node(NodeType::n_NULL);
 }
 
 Node Parser::if_expr() {
@@ -266,6 +271,50 @@ Node Parser::if_expr() {
             std::vector<Node> children = {comparison, trueExpr};
             advance();
             return Node(NodeType::n_IF, children);
+        }
+    }
+    raiseError(); // nothing
+}
+Node Parser::for_expr() {
+    Token oldToken = currentToken;
+    if (oldToken.type == TokenType::t_KEYWORD && oldToken.name == "FOR") {
+        advance();
+        Node assignment = expr();
+        Node end = Node(NodeType::n_NULL);
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "TO") {
+            advance();
+            end = expr();
+        } else {
+            raiseError();
+        }
+        // advance();
+        Node commands = expr();
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "NEXT") {
+            advance();
+            Node step = expr();
+            std::vector<Node> children = {assignment, end, commands, step};
+            advance();
+            return Node(NodeType::n_FOR, children);
+        }
+    }
+    raiseError(); // nothing
+}
+Node Parser::while_expr() {
+    Token oldToken = currentToken;
+    if (oldToken.type == TokenType::t_KEYWORD && oldToken.name == "WHILE") {
+        advance();
+        Node comparison = expr();
+        Node commands = Node(NodeType::n_NULL);
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "DO") {
+            advance();
+            commands = expr();
+        } else {
+            raiseError();
+        }
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ENDWHILE") {
+            std::vector<Node> children = {comparison, commands};
+            advance();
+            return Node(NodeType::n_WHILE, children);
         }
     }
     raiseError(); // nothing

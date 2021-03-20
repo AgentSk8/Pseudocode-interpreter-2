@@ -13,8 +13,14 @@ Number::Number(std::string msg) {
     throw std::runtime_error(msg);
 }
 
+/* NO RETURN */
+Number::Number() {
+    nret = 1;
+}
+
 /* OPERATOR "<<" OVERLOAD FOR NUM JUST OUTPUTS VALUE */
 std::ostream &operator<<(std::ostream &os, Number const &n) {
+    if (n.nret) return os;
     return os << n.value;
 }
 
@@ -159,9 +165,23 @@ Variable Interpreter::visit(Node node) {
             if (result) return Variable(Number(visit(node.nodes[1]).value));
             return Variable(Number(visit(node.nodes[2]).value));
         }
+        case NodeType::n_FOR: {
+            // assignment, end, commands, step
+            visit(node.nodes[0]);
+            while (globalSymbolTable.get(node.nodes[0].name).value != visit(node.nodes[1]).value) {
+                globalSymbolTable.set(node.nodes[0].name,visit(node.nodes[3]));
+            }
+            return Variable(Number());
+        }
+        case NodeType::n_WHILE: {
+            // comparison, commands
+            while (visit(node.nodes[0]).value) {
+                visit(node.nodes[1]);
+            }
+            return Variable(Number());
+        }
         default:
             return Variable(Number("Runtime error."));
 
     };
-
 }

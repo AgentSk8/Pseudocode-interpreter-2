@@ -36,7 +36,13 @@ std::vector<std::string> keywords = {
     "IF",
     "THEN",
     "ELSE",
-    "ENDIF"
+    "ENDIF",
+    "FOR",
+    "TO",
+    "NEXT",
+    "WHILE",
+    "DO",
+    "ENDWHILE"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */
