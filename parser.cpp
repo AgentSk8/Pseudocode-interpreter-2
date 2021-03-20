@@ -274,6 +274,7 @@ Node Parser::if_expr() {
         }
     }
     raiseError(); // nothing
+    return Node(NodeType::n_NULL);
 }
 Node Parser::for_expr() {
     Token oldToken = currentToken;
@@ -298,6 +299,7 @@ Node Parser::for_expr() {
         }
     }
     raiseError(); // nothing
+    return Node(NodeType::n_NULL);
 }
 Node Parser::while_expr() {
     Token oldToken = currentToken;
@@ -318,6 +320,7 @@ Node Parser::while_expr() {
         }
     }
     raiseError(); // nothing
+    return Node(NodeType::n_NULL);
 }
 void Parser::raiseError() {
     throw std::runtime_error("Invalid Syntax.");
