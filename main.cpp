@@ -19,7 +19,6 @@ int main() {
         
         Lexer lexer = Lexer(expression);
         std::vector<Token> tokens = lexer.generateTokens();
-
         Parser parser = Parser(tokens);
         Node tree = parser.parse();
 
@@ -38,7 +37,6 @@ int main() {
         }
         Interpreter interpreter = Interpreter(smbt);
         Variable result = interpreter.visit(tree);
-
         std::cout << result.number << "\n";
     }
 }

@@ -244,7 +244,7 @@ Node Parser::atom() {
     if (oldToken.name == "IF") return if_expr();
     else if (oldToken.name == "FOR") return for_expr();
     else if (oldToken.name == "WHILE") return while_expr();
-    return Node(NodeType::n_NULL);
+    return builtin_expr();
 }
 
 Node Parser::if_expr() {
@@ -322,6 +322,29 @@ Node Parser::while_expr() {
     raiseError(); // nothing
     return Node(NodeType::n_NULL);
 }
+
+Node Parser::builtin_expr() {
+    Token oldToken = currentToken;
+    // TODO: commas
+    if (oldToken.type == TokenType::t_KEYWORD) {
+        std::string n = oldToken.name;
+        advance();
+        if (n == "PRINT") {
+            std::vector<Node> children = { expr() };
+            advance();
+            return Node(NodeType::n_PRINT, children);
+        } else if (n == "READ") {
+            if (currentToken.type == TokenType::t_IDENTIFIER) {
+                std::string n = currentToken.name;
+                advance();
+                return Node(NodeType::n_READ, n);
+            }
+        }
+    }
+    raiseError();
+    return Node(NodeType::n_NULL);
+}
+
 void Parser::raiseError() {
     throw std::runtime_error("Invalid Syntax.");
 }

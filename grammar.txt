@@ -16,9 +16,12 @@ atom            := number | paren (expr) | identifier
                 := if-expr
                 := for-expr
                 := while-expr
+                := builtin-expr
 
 if-expr         := IF expr THEN expr (ELSE expr) ENDIF
 
 for-expr        := FOR  IDENTIFIER <- expr TO expr ... NEXT IDENTIFIER
 
 while-expr      := WHILE expr DO ... ENDWHILE
+
+builtin-expr    := (COMMAND NAME) (expr (COMMA))*

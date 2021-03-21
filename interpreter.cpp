@@ -180,6 +180,13 @@ Variable Interpreter::visit(Node node) {
             }
             return Variable(Number());
         }
+        case NodeType::n_PRINT: std::cout << visit(node.nodes[0]).value << std::endl; return Variable(Number());
+        case NodeType::n_READ: {
+            std::string inp;
+            std::getline(std::cin, inp);
+            globalSymbolTable.set(node.name, std::stof(inp));
+            return Variable(Number());
+        }
         default:
             return Variable(Number("Runtime error."));
 

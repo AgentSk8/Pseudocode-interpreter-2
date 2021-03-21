@@ -25,7 +25,8 @@ enum TokenType{
     t_GT = 14,
     t_LTE = 15, // less than or equal to
     t_GTE = 16,
-    t_KEYWORD = 17
+    t_KEYWORD = 17,
+    t_COMMA = 18
 };
 
 /* NEEDS TO BE 'extern' SO IT DOESN'T DUPLICATE SYMBOL*/

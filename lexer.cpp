@@ -42,7 +42,9 @@ std::vector<std::string> keywords = {
     "NEXT",
     "WHILE",
     "DO",
-    "ENDWHILE"
+    "ENDWHILE",
+    "PRINT",
+    "READ"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */
@@ -196,6 +198,9 @@ std::vector<Token> Lexer::generateTokens() {
                     break;
                 case '=':
                     operatorToken = Token(TokenType::t_EE);
+                    break;
+                case ',':
+                    operatorToken = Token(TokenType::t_COMMA);
                     break;
                 default: // unknown character
                     std::string msg = "Illegal character: ";
