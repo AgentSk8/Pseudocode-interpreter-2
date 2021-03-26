@@ -32,7 +32,9 @@ enum NodeType {
     n_FOR = 22,
     n_WHILE = 23,
     n_PRINT = 24,
-    n_READ = 25
+    n_READ = 25,
+    n_INPUT = 26,
+    n_STRING = 27
 };
 
 /* NODE STRUCT */

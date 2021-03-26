@@ -12,7 +12,7 @@ factor          := +- factor
 
 power           := atom ^ factor
 
-atom            := number | paren (expr) | identifier
+atom            := number | paren (expr) | string | identifier
                 := if-expr
                 := for-expr
                 := while-expr

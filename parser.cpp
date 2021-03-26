@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "lexer.h" // for Token
+#include <algorithm>
 
 /* NODE DATACLASS */
 /**
@@ -54,9 +55,13 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_EE) return os << "(" << n.nodes[0] << "==" << n.nodes[1] << ")";
         else if (t == NodeType::n_NE) return os << "(" << n.nodes[0] << "!=" << n.nodes[1] << ")";
         else if (t == NodeType::n_IF) return os << "(" << n.nodes[0] << "?" << n.nodes[1] << ")";
+        else if (t == NodeType::n_PRINT) return os << "{PRINT:" << n.nodes[0] << "}";
+        else if (t == NodeType::n_READ) return os << "{READ:" << n.name << "}";
+        else if (t == NodeType::n_INPUT) return os << "{INPUT:" << n.name << "}";
         else if (t == NodeType::n_IF_ELSE) return os << "(" << n.nodes[0] << "?" << n.nodes[1] << ":" << n.nodes[2] << ")"; 
         else if (t == NodeType::n_FOR) return os << "(for(" << n.nodes[0] << "->" << n.nodes[1] << ")::(" << n.nodes[2] << ")" << "next)";
         else if (t == NodeType::n_WHILE) return os << "(while(" << n.nodes[0] << ")::(" << n.nodes[1] << ")" << "next)";
+        else if (t == NodeType::n_STRING) return os << '"' << n.name << '"';
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -74,7 +79,6 @@ Node Parser::parse(){
     if (currentToken.type == TokenType::t_NONE) return Node(NodeType::n_NULL);
 
     Node result = expr(); // call least priority (expr +/-)
-
     // If token is left unparsed, raise syntax error
     if (currentToken.type != TokenType::t_NONE) raiseError(); 
 
@@ -237,6 +241,9 @@ Node Parser::atom() {
     } else if (oldToken.type == TokenType::t_NUMBER) {
         advance();
         return Node(NodeType::n_NUMBER, oldToken.value); // return node of type number with the token's value
+    } else if (oldToken.type == TokenType::t_STRING) {
+        advance();
+        return Node(NodeType::n_STRING, oldToken.name);
     } else if (oldToken.type == TokenType::t_IDENTIFIER) { // access the identifier
         advance();
         return Node(NodeType::n_VAR_ACCESS, oldToken.name);
@@ -331,13 +338,18 @@ Node Parser::builtin_expr() {
         advance();
         if (n == "PRINT") {
             std::vector<Node> children = { expr() };
-            advance();
             return Node(NodeType::n_PRINT, children);
         } else if (n == "READ") {
             if (currentToken.type == TokenType::t_IDENTIFIER) {
-                std::string n = currentToken.name;
+                std::string id = currentToken.name;
                 advance();
-                return Node(NodeType::n_READ, n);
+                return Node(NodeType::n_READ, id);
+            }
+        } else if (n == "INPUT") {
+            if (currentToken.type == TokenType::t_IDENTIFIER) {
+                std::string id = currentToken.name;
+                advance();
+                return Node(NodeType::n_INPUT, id);
             }
         }
     }

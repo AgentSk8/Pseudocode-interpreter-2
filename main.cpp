@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "interpreter.h"
 
-bool debug = false;
+bool debug = 0;
 
 std::string expression;
 int main() {
@@ -37,6 +37,6 @@ int main() {
         }
         Interpreter interpreter = Interpreter(smbt);
         Variable result = interpreter.visit(tree);
-        std::cout << result.number << "\n";
+        std::cout << result << "\n";
     }
 }

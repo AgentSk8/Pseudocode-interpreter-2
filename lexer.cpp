@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include <vector>
+#include <algorithm>
 
 /* STRING CONSTANTS */
 std::string DIGITS = "0123456789";
@@ -25,7 +26,8 @@ std::map<TokenType,std::string> TokenTypeMap = {
     {t_GT,"GT"},
     {t_LTE,"LTE"},
     {t_GTE,"GTE"},
-    {t_KEYWORD,"KEYWORD"}
+    {t_KEYWORD,"KEYWORD"},
+    {t_STRING,"STRING"}
 };
 
 /* VECTOR TO STORE KEYWORDS */
@@ -44,7 +46,8 @@ std::vector<std::string> keywords = {
     "DO",
     "ENDWHILE",
     "PRINT",
-    "READ"
+    "READ",
+    "INPUT"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */
@@ -68,7 +71,7 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
     std::string type = TokenTypeMap[t.type];
     if (type == "NUMBER")
         return os << type << ": " << t.value;
-    else if (type == "IDENTIFIER" or type == "KEYWORD")
+    else if (type == "IDENTIFIER" or type == "KEYWORD" or type == "STRING")
         return os << type << ": " << t.name;
     else
         return os << type;
@@ -131,6 +134,29 @@ Token Lexer::generateWord() {
         return Token(TokenType::t_KEYWORD, wordStr);
     else
         return Token(TokenType::t_IDENTIFIER, wordStr);
+}
+
+Token Lexer::generateString() {
+    std::string result = "";
+    bool escapeCharacter = false;
+    while (currentChar != '"' && (currentChar != '\0' || escapeCharacter)) {
+        if (escapeCharacter) {
+            switch (currentChar) {
+                case 'n': result += '\n'; break;
+                case 't': result += '\t'; break;
+                default: result += currentChar; break;
+            }
+        } else {
+            if (currentChar == '\\') {
+                escapeCharacter = true;
+            } else {
+                result += currentChar;
+            }
+        }
+        advance();
+    }
+    advance();
+    return Token(TokenType::t_STRING, result);
 }
 
 std::vector<Token> Lexer::generateTokens() {
@@ -201,6 +227,9 @@ std::vector<Token> Lexer::generateTokens() {
                     break;
                 case ',':
                     operatorToken = Token(TokenType::t_COMMA);
+                    break;
+                case '"':
+                    operatorToken = generateString();
                     break;
                 default: // unknown character
                     std::string msg = "Illegal character: ";

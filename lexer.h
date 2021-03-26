@@ -26,7 +26,8 @@ enum TokenType{
     t_LTE = 15, // less than or equal to
     t_GTE = 16,
     t_KEYWORD = 17,
-    t_COMMA = 18
+    t_COMMA = 18,
+    t_STRING = 19
 };
 
 /* NEEDS TO BE 'extern' SO IT DOESN'T DUPLICATE SYMBOL*/
@@ -51,6 +52,7 @@ class Lexer {
         void advance(); // increase the iterator and check for errors
         Token generateNumber(); // generate numbers by advancing through the chars
         Token generateWord(); // generate identifiers / keywords by advancing till not alphabet
+        Token generateString(); // generat string by escaping characters and add all others
         int cursorPos;
         std::string code; // keep track of the code so we know when we hit the end
         char currentChar; // keep track of the current character the iterator is pointing at

@@ -18,10 +18,24 @@ Number::Number() {
     nret = 1;
 }
 
+/* STRING INIT */
+String::String(std::string Value) {
+    value = Value;
+}
+/* NULL STRING */
+String::String() {
+    value = "";
+}
+
 /* OPERATOR "<<" OVERLOAD FOR NUM JUST OUTPUTS VALUE */
 std::ostream &operator<<(std::ostream &os, Number const &n) {
     if (n.nret) return os;
     return os << n.value;
+}
+
+/* OPERATOR "<<" OVERLOAD FOR NUM JUST OUTPUTS VALUE */
+std::ostream &operator<<(std::ostream &os, String const &s) {
+    return os << s.value;
 }
 
 /* CHILD SYMBOL TABLE WITH GLOBAL PARENT */
@@ -88,11 +102,30 @@ Variable SymbolTable::get(std::string key) {
 Variable::Variable(Number number_) {
     number = number_;
     value = number.value;
+    type = "number";
 }
 
-/* SYMBOL TABLE "<<" OPERATOR - PRINTS INTERIOR MAP*/
+Variable::Variable(String string_) {
+    string = string_;
+    type = "string";
+}
+
+Variable::Variable(std::string string_) {
+    string = String(string_);
+    type = "string";
+}
+
+Variable::Variable(float number_) {
+    number = Number(number_);
+    value = number.value;
+    type = "number";
+}
+/* VARIABLE << OPERATOR */
 std::ostream &operator<<(std::ostream &os, Variable const &v) {
-    return os << v.number;
+    if (v.type == "number") {
+        return os << v.number;
+    }
+    return os << v.string;
 }
 
 /* RECURSIVELY CALL VISIT ON EACH NODE AND OPERATE WITH SAID VALUES*/
@@ -102,15 +135,53 @@ Variable Interpreter::visit(Node node) {
         case NodeType::n_NUMBER:
             // just return a number if number
             return Variable(Number(node.value));
-        case NodeType::n_ADD:
+        case NodeType::n_STRING:
+            // return string var
+            return Variable(String(node.name));
+        case NodeType::n_ADD: {
             // visit each node and add result
-            return Variable(Number(visit(node.nodes[0]).value + visit(node.nodes[1]).value));
+            Variable node1 = visit(node.nodes[0]);
+            Variable node2 = visit(node.nodes[1]);
+            if (node1.type == "number" && node2.type == "number")
+                return Variable(node1.value + node2.value);
+            else if (node1.type == "number") {
+                std::string n1 = std::to_string(node1.value);
+                n1.erase(n1.find_last_not_of('0')+1,std::string::npos);
+                if (n1.back() == '.') n1.erase(std::prev(n1.end()));
+                return Variable(n1 + node2.string.value);
+            } else if (node2.type == "number") {
+                std::string n2 = std::to_string(node2.value);
+                n2.erase ( n2.find_last_not_of('0') + 1, std::string::npos );
+                if (n2.back() == '.') n2.erase(std::prev(n2.end()));
+                return Variable(node1.string.value + n2);
+            } else {
+                return Variable(node1.string.value + node2.string.value);
+            }
+        }
         case NodeType::n_SUBTRACT:
             // visit each node and sub. result
-            return Variable(Number(visit(node.nodes[0]).value - visit(node.nodes[1]).value));
-        case NodeType::n_MULTIPLY: 
-            // visit each node and mult. result
-            return Variable(Number(visit(node.nodes[0]).value * visit(node.nodes[1]).value));
+            return Variable(visit(node.nodes[0]).value - visit(node.nodes[1]).value);
+        case NodeType::n_MULTIPLY: {
+            Variable node1 = visit(node.nodes[0]);
+            Variable node2 = visit(node.nodes[1]);
+            if (node1.type == "number" && node2.type == "number")
+                return Variable(node1.value * node2.value);
+            else {
+                std::string ret;
+                if (node1.type == "number") {
+                    ret = "";
+                    for (int i = 0; i < node1.value; i++) {
+                        ret += node2.string.value;
+                    }
+                } else {
+                    ret = "";
+                    for (int i = 0; i < node2.value; i++) {
+                        ret += node1.string.value;
+                    }
+                }
+                return Variable(ret);
+            }
+        }
         case NodeType::n_DIVIDE:
             // visit each node and div. result
             {
@@ -131,7 +202,12 @@ Variable Interpreter::visit(Node node) {
             return Variable(Number(-visit(node.nodes[0]).value));
         case NodeType::n_VAR_ASSIGN:
             {
-                Variable tmp = Variable(Number(visit(node.nodes[0]).value));
+                Variable cnode = visit(node.nodes[0]);
+                Variable tmp = Variable(0);
+                if (cnode.type == "number")
+                    tmp = Variable(cnode.value);
+                else
+                    tmp = Variable(cnode.string);
                 globalSymbolTable.set(node.name, tmp);
                 return tmp;
             }
@@ -169,6 +245,7 @@ Variable Interpreter::visit(Node node) {
             // assignment, end, commands, step
             visit(node.nodes[0]);
             while (globalSymbolTable.get(node.nodes[0].name).value != visit(node.nodes[1]).value) {
+                visit(node.nodes[2]);
                 globalSymbolTable.set(node.nodes[0].name,visit(node.nodes[3]));
             }
             return Variable(Number());
@@ -180,11 +257,17 @@ Variable Interpreter::visit(Node node) {
             }
             return Variable(Number());
         }
-        case NodeType::n_PRINT: std::cout << visit(node.nodes[0]).value << std::endl; return Variable(Number());
+        case NodeType::n_PRINT: std::cout << visit(node.nodes[0]) << std::endl; return Variable(Number());
         case NodeType::n_READ: {
             std::string inp;
             std::getline(std::cin, inp);
-            globalSymbolTable.set(node.name, std::stof(inp));
+            globalSymbolTable.set(node.name, Variable(inp));
+            return Variable(Number());
+        }
+        case NodeType::n_INPUT: {
+            float inp;
+            std::cin >> inp;
+            globalSymbolTable.set(node.name, inp);
             return Variable(Number());
         }
         default:

@@ -12,11 +12,22 @@ struct Number {
     Number();
 };
 
+struct String {
+    std::string value;
+    String(std::string Value);
+    String();
+};
+
 struct Variable {
-    Number number = Number(-1);
+    Number number;
+    String string;
     float value;
+    std::string type;
     // TODO: other var types
     Variable(Number number_); // for int / float values
+    Variable(String string_);
+    Variable(float number_);
+    Variable(std::string string_);
 };
 
 struct SymbolTable {

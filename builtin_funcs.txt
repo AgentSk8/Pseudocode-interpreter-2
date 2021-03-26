@@ -1,0 +1,4 @@
+PRINT       => prints the expression given
+// NOTE: the following two are needed to differentiate whether the user wants string or number.
+READ        => reads a string value
+INPUT       => reads a numerical value
