@@ -27,7 +27,9 @@ enum TokenType{
     t_GTE = 16,
     t_KEYWORD = 17,
     t_COMMA = 18,
-    t_STRING = 19
+    t_STRING = 19,
+	t_LSQBRACKET = 20,
+	t_RSQBRACKET = 21
 };
 
 /* NEEDS TO BE 'extern' SO IT DOESN'T DUPLICATE SYMBOL*/
