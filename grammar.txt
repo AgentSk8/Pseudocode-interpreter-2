@@ -25,3 +25,5 @@ for-expr        := FOR  IDENTIFIER <- expr TO expr ... NEXT IDENTIFIER
 while-expr      := WHILE expr DO ... ENDWHILE
 
 builtin-expr    := (COMMAND NAME) (expr (COMMA))*
+
+list-expr		:= brackets [expr (COMMA expr...)]
