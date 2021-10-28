@@ -34,7 +34,8 @@ enum NodeType {
     n_PRINT = 24,
     n_READ = 25,
     n_INPUT = 26,
-    n_STRING = 27
+    n_STRING = 27,
+    n_LIST = 28
 };
 
 /* NODE STRUCT */
@@ -70,6 +71,7 @@ class Parser {
         Node factor(); // +- factor
         Node power(); // atom ^ factor (right hand is less important)
         Node atom(); // returns either a number or the expr inside parens
+        Node list_expr(); // [<expr> (COMMA)*]
         Node if_expr(); // IF <condition> THEN <expression> ELSE <expression>
         Node for_expr(); // FOR <expr:assignment> TO <expr:end> <expr:action> NEXT <identifier>
         Node while_expr(); // WHILE <condition> DO <expression> ENDWHILE

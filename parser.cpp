@@ -62,6 +62,15 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_FOR) return os << "(for(" << n.nodes[0] << "->" << n.nodes[1] << ")::(" << n.nodes[2] << ")" << "next)";
         else if (t == NodeType::n_WHILE) return os << "(while(" << n.nodes[0] << ")::(" << n.nodes[1] << ")" << "next)";
         else if (t == NodeType::n_STRING) return os << '"' << n.name << '"';
+        else if (t == NodeType::n_LIST) {
+            os << "([";
+            for (long long i = 0; i < n.nodes.size(); i++) {
+                os << n.nodes[i];
+                if (i != n.nodes.size()-1) os << ", ";
+            }
+            os << "])";
+            return os;
+        }
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -248,10 +257,24 @@ Node Parser::atom() {
         advance();
         return Node(NodeType::n_VAR_ACCESS, oldToken.name);
     }
-    if (oldToken.name == "IF") return if_expr();
+    std::cout << "in atom " << oldToken << std::endl;
+    if (oldToken.type == TokenType::t_LSQBRACKET) return list_expr();
+    else if (oldToken.name == "IF") return if_expr();
     else if (oldToken.name == "FOR") return for_expr();
     else if (oldToken.name == "WHILE") return while_expr();
     return builtin_expr();
+}
+
+Node Parser::list_expr() {
+    Token oldToken = currentToken;
+    std::vector<Node> elements;
+    while (currentToken.type != TokenType::t_RSQBRACKET) {
+        advance();
+        Node element = expr();
+        elements.push_back(element);
+    }
+    advance();
+    return Node(NodeType::n_LIST, elements);
 }
 
 Node Parser::if_expr() {
