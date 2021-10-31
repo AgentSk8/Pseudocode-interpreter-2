@@ -5,6 +5,7 @@
 /* INIT NUM WITH FLOAT VALUE */
 Number::Number(float Value) {
     value = Value;
+    nret = 0;
 }
 
 /* INIT NUM WITH STRING (ERROR) */
@@ -27,15 +28,34 @@ String::String() {
     value = "";
 }
 
+/*LIST INIT*/
+List::List(std::vector<Variable> Values) {
+    values = Values;
+}
+
+/*EMPTY LIST*/
+List::List() {}
+
 /* OPERATOR "<<" OVERLOAD FOR NUM JUST OUTPUTS VALUE */
 std::ostream &operator<<(std::ostream &os, Number const &n) {
     if (n.nret) return os;
     return os << n.value;
 }
 
-/* OPERATOR "<<" OVERLOAD FOR NUM JUST OUTPUTS VALUE */
+/* OPERATOR "<<" OVERLOAD FOR STR JUST OUTPUTS VALUE */
 std::ostream &operator<<(std::ostream &os, String const &s) {
     return os << s.value;
+}
+
+/* OPERATOR "<<" OVERLOAD FOR LIST JUST OUTPUTS ELEMENTS */
+std::ostream &operator<<(std::ostream &os, List const &l) {
+    long long c = l.values.size();
+    os << '[';
+    for (long long i = 0; i < c; i++) {
+        os << l.values[i];
+        if (i != c-1) os << ", ";
+    }
+    return os << ']';
 }
 
 /* CHILD SYMBOL TABLE WITH GLOBAL PARENT */
@@ -110,6 +130,11 @@ Variable::Variable(String string_) {
     type = "string";
 }
 
+Variable::Variable(List list_) {
+    list = list_;
+    type = "list";
+}
+
 Variable::Variable(std::string string_) {
     string = String(string_);
     type = "string";
@@ -120,12 +145,18 @@ Variable::Variable(float number_) {
     value = number.value;
     type = "number";
 }
+
+Variable::Variable(std::vector<Variable> list_) {
+    list = List(list_);
+    type = "list";
+}
+
 /* VARIABLE << OPERATOR */
 std::ostream &operator<<(std::ostream &os, Variable const &v) {
-    if (v.type == "number") {
-        return os << v.number;
-    }
-    return os << v.string;
+    if (v.type == "number") return os << v.number;
+    else if (v.type == "string") return os << v.string;
+    else if (v.type == "list") return os << v.list;
+    return os;
 }
 
 /* RECURSIVELY CALL VISIT ON EACH NODE AND OPERATE WITH SAID VALUES*/
@@ -143,7 +174,7 @@ Variable Interpreter::visit(Node node) {
             Variable node1 = visit(node.nodes[0]);
             Variable node2 = visit(node.nodes[1]);
             if (node1.type == "number" && node2.type == "number")
-                return Variable(node1.value + node2.value);
+                return Variable(node1.value + node2.value); 
             else if (node1.type == "number") {
                 std::string n1 = std::to_string(node1.value);
                 n1.erase(n1.find_last_not_of('0')+1,std::string::npos);
@@ -203,14 +234,23 @@ Variable Interpreter::visit(Node node) {
         case NodeType::n_VAR_ASSIGN:
             {
                 Variable cnode = visit(node.nodes[0]);
-                Variable tmp = Variable(0);
-                if (cnode.type == "number")
-                    tmp = Variable(cnode.value);
-                else
-                    tmp = Variable(cnode.string);
-                globalSymbolTable.set(node.name, tmp);
-                return tmp;
+                //Variable tmp = Variable(0);
+                /*if (cnode.type == "number")
+                    //tmp = Variable(cnode.value);
+                else if (cnode.type == "string")
+                    //tmp = Variable(cnode.string);
+                else if (cnode.type == "list")
+                    tmp = cnode*/
+                globalSymbolTable.set(node.name, cnode);
+                return cnode;
             }
+        case NodeType::n_LIST: {
+            std::vector<Variable> elements;
+            for (long long i = 0; i < node.nodes.size(); i++) {
+                elements.push_back(visit(node.nodes[i]));
+            }
+            return Variable(elements);
+        }
         case NodeType::n_VAR_ACCESS:
             return globalSymbolTable.get(node.name);
         case NodeType::n_EE:
@@ -226,11 +266,11 @@ Variable Interpreter::visit(Node node) {
         case NodeType::n_GTE:
             return Variable(Number(visit(node.nodes[0]).value >= visit(node.nodes[1]).value));
         case NodeType::n_AND:
-            return Variable(Number(visit(node.nodes[0]).value and visit(node.nodes[1]).value));
+            return Variable(Number(visit(node.nodes[0]).value && visit(node.nodes[1]).value));
         case NodeType::n_OR:
-            return Variable(Number(visit(node.nodes[0]).value or visit(node.nodes[1]).value));
+            return Variable(Number(visit(node.nodes[0]).value || visit(node.nodes[1]).value));
         case NodeType::n_NOT:
-            return Variable(Number(not visit(node.nodes[0]).value));
+            return Variable(Number(!visit(node.nodes[0]).value));
         case NodeType::n_IF: {
             bool result = visit(node.nodes[0]).value; // get the condition
             if (result) return Variable(Number(visit(node.nodes[1]).value));
@@ -266,8 +306,10 @@ Variable Interpreter::visit(Node node) {
         }
         case NodeType::n_INPUT: {
             float inp;
-            std::cin >> inp;
-            globalSymbolTable.set(node.name, inp);
+            std::string inp_s;
+            std::getline(std::cin,inp_s);
+            inp = std::stof(inp_s);
+            globalSymbolTable.set(node.name, Variable(inp));
             return Variable(Number());
         }
         default:

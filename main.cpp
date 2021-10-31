@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "interpreter.h"
 
-bool debug = 1;
+bool debug = 0;
 
 std::string expression;
 int main() {
@@ -16,7 +16,6 @@ int main() {
     while (1) {
         std::cout << ">>> ";
         std::getline(std::cin, expression);
-        
         Lexer lexer = Lexer(expression);
         std::vector<Token> tokens = lexer.generateTokens();
         Parser parser = Parser(tokens);
@@ -35,8 +34,8 @@ int main() {
             std::cout << "]\n";
             std::cout << "AST: " << tree << "\n";
         }
-        // Interpreter interpreter = Interpreter(smbt);
-        // Variable result = interpreter.visit(tree);
-        // std::cout << result << "\n";
+        Interpreter interpreter = Interpreter(smbt);
+        Variable result = interpreter.visit(tree);
+        std::cout<<result << "\n";
     }
 }

@@ -257,7 +257,6 @@ Node Parser::atom() {
         advance();
         return Node(NodeType::n_VAR_ACCESS, oldToken.name);
     }
-    std::cout << "in atom " << oldToken << std::endl;
     if (oldToken.type == TokenType::t_LSQBRACKET) return list_expr();
     else if (oldToken.name == "IF") return if_expr();
     else if (oldToken.name == "FOR") return for_expr();

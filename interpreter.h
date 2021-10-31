@@ -17,17 +17,26 @@ struct String {
     String(std::string Value);
     String();
 };
+struct Variable;
 
+struct List {
+    std::vector<Variable> values;
+    List(std::vector<Variable> Values);
+    List();
+};
 struct Variable {
     Number number;
     String string;
+    List list;
     float value;
     std::string type;
     // TODO: other var types
     Variable(Number number_); // for int / float values
     Variable(String string_);
+    Variable(List list_);
     Variable(float number_);
     Variable(std::string string_);
+    Variable(std::vector<Variable> list_);
 };
 
 struct SymbolTable {
