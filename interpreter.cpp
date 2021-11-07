@@ -1,6 +1,40 @@
 #include "parser.h"
 #include "interpreter.h"
 #include <math.h>
+#include <algorithm>
+
+/* HELPER FUNCTION TO REMOVE ALL SUBSTRINGS FROM A MAIN STRING */
+std::string substringRemove(std::string main_string, std::string substring) {
+    std::string new_string;
+    if (main_string.size() < substring.size()) return main_string;// if sub is larger than main, it can't be substring
+    else if (main_string.size() == substring.size()) { // if they are equal size, then either main==sub, or sub can't be a substring of main
+        if (main_string == substring) return "";
+        else return main_string;
+    }
+    long long i = 0;
+    while (i < main_string.size()) {
+        if (main_string.size()-i>= substring.size() && main_string[i] == substring[0]) { // if matches first char if () / if remaining chars are longer than substring then there won't be a substring
+            long long j = 1;
+            while (j < substring.size()) {// check all other characters
+                if (substring[j] != main_string[i+j]) break; // if those don't match, break
+                j++;
+            }
+            if (j == substring.size()) i+=substring.size()-1; // if that IS  a substring, advance its size to skip it.
+            else new_string += main_string[i];// add the initial char that wasn't part of the substring back.
+        } else {
+            new_string += main_string[i]; // otherwise it is not part of substring so can be added to new string
+        }
+        i++;
+    }
+    return new_string;
+}
+
+/* HELPER FUNCTION TO MAKE STRING UPPER */
+std::string s_toupper(std::string s) {
+    // iterator first1, last1, first2, unary operator applies toupper to each char.
+    std::transform(s.begin(),s.end(),s.begin(),[](unsigned char c) {return std::toupper(c);});
+    return s;
+}
 
 /* INIT NUM WITH FLOAT VALUE */
 Number::Number(float Value) {
@@ -22,6 +56,11 @@ Number::Number() {
 /* STRING INIT */
 String::String(std::string Value) {
     value = Value;
+}
+/* CHAR STRING INIT */
+String::String(char Value) {
+    std::string tmp(1,Value);
+    value = tmp;
 }
 /* NULL STRING */
 String::String() {
@@ -56,6 +95,27 @@ std::ostream &operator<<(std::ostream &os, List const &l) {
         if (i != c-1) os << ", ";
     }
     return os << ']';
+}
+
+/* ==" OPERATOR OVERLOADS */
+bool operator==(Variable const &v1,Variable const &v2) {
+    if (v1.type != v2.type) return 0;
+    if (v1.type == "number") return v1.number == v2.number;
+    if (v1.type == "string") return v1.string == v2.string;
+    if (v1.type == "list") return v1.list == v2.list;
+    throw std::runtime_error("Invalid type for equality: " + v1.type);    
+}
+bool operator!=(Variable const &v1,Variable const &v2) {
+    return !(v1 == v2);
+}
+bool operator==(Number const &n1,Number const &n2) {
+    return n1.value == n2.value;
+}
+bool operator==(String const &s1,String const &s2) {
+    return s1.value == s2.value;
+}
+bool operator==(List const &l1,List const &l2) {
+    return l1.values == l2.values;
 }
 
 /* CHILD SYMBOL TABLE WITH GLOBAL PARENT */
@@ -173,31 +233,158 @@ Variable Interpreter::visit(Node node) {
             // visit each node and add result
             Variable node1 = visit(node.nodes[0]);
             Variable node2 = visit(node.nodes[1]);
-            if (node1.type == "number" && node2.type == "number")
-                return Variable(node1.value + node2.value); 
-            else if (node1.type == "number") {
-                std::string n1 = std::to_string(node1.value);
-                n1.erase(n1.find_last_not_of('0')+1,std::string::npos);
-                if (n1.back() == '.') n1.erase(std::prev(n1.end()));
-                return Variable(n1 + node2.string.value);
-            } else if (node2.type == "number") {
-                std::string n2 = std::to_string(node2.value);
-                n2.erase ( n2.find_last_not_of('0') + 1, std::string::npos );
-                if (n2.back() == '.') n2.erase(std::prev(n2.end()));
-                return Variable(node1.string.value + n2);
+
+            // NOTE: There is certainly a much better way to do this using oop (i.e. each class having an add member and Variable calling on its subclass add member passing another variable (pointer?)
+            if (node1.type == "number") {
+                /* NUMBER + NUMBER */
+                if (node2.type == "number") return Variable(node1.value + node2.value);
+                /* NUMBER + STRING -> ADDS NUMBER TO FRONT OF STRING */
+                else if (node2.type == "string")  {
+                    // string manipulation so integer float is repr as int (i.e. 5.0 -> 5)
+                    std::string n1 = std::to_string(node1.value);
+                    n1.erase(n1.find_last_not_of('0')+1,std::string::npos);
+                    if (n1.back() == '.') n1.erase(std::prev(n1.end()));
+                    return Variable(n1 + node2.string.value);
+                /* NUMBER + LIST -> ADDS NUMBER TO FRONT OF LIST */
+                } else if (node2.type == "list") {
+                    std::vector<Variable> vals;
+                    vals.push_back(node1);
+                    for (long long i = 0; i < node2.list.values.size(); i++) {
+                        vals.push_back(node2.list.values[i]);
+                    }
+                    return Variable(vals);
+                }
+            } else if (node1.type == "string") {
+                /* STRING + NUMBER -> ADD NUMBER TO BACK OF STRING */
+                if (node2.type == "number") {
+                    // string manipulation so integer float is repr as int (i.e. 5.0 -> 5)
+                    std::string n2 = std::to_string(node2.value);
+                    n2.erase ( n2.find_last_not_of('0') + 1, std::string::npos );
+                    if (n2.back() == '.') n2.erase(std::prev(n2.end()));
+                    return Variable(node1.string.value + n2);
+                /* STRING + STRING -> CONCATENATE STRINGS*/
+                } else if (node2.type == "string") return Variable(node1.string.value + node2.string.value);
+                /* STRING + LIST -> ADD STRING TO FRONT OF LIST */
+                else if (node2.type == "list") {
+                    std::vector<Variable> vals;
+                    vals.push_back(node1);
+                    for (long long i = 0; i < node2.list.values.size(); i++) {
+                        vals.push_back(node2.list.values[i]);
+                    }
+                    return Variable(vals);
+                }
+            } else if (node1.type == "list") {
+                /* LIST + NUMBER/STRING -> ADD NUMBER/STRING TO BACK */
+                if (node2.type == "number" || node2.type == "string") {
+                    std::vector<Variable> vals = node1.list.values;
+                    vals.push_back(node2);
+                    return Variable(vals);
+                /* LIST + LIST -> adds elements from list to list (not list itself, unless element from list is list)*/
+                } else if (node2.type == "list") {
+                    std::vector<Variable> vals = node1.list.values;
+                    for (long long i = 0; i < node2.list.values.size(); i++) {
+                        vals.push_back(node2.list.values[i]);
+                    }
+                    return Variable(vals);
+                }
             } else {
-                return Variable(node1.string.value + node2.string.value);
+                return Variable(Number("Invalid left-side type for operation '+': " + node1.type));
             }
+            return Variable(Number("Invalid right-side type for operation '+': " + node2.type));
         }
-        case NodeType::n_SUBTRACT:
+        case NodeType::n_SUBTRACT: {
             // visit each node and sub. result
-            return Variable(visit(node.nodes[0]).value - visit(node.nodes[1]).value);
+            //return Variable(visit(node.nodes[0]).value - visit(node.nodes[1]).value);
+
+            Variable node1 = visit(node.nodes[0]);
+            Variable node2 = visit(node.nodes[1]);
+            // NOTE: There is certainly a much better way to do this using oop (i.e. each class having a sub member and Variable calling on its subclass add member passing another variable (pointer?)
+            if (node1.type == "number") {
+                /* NUMBER - NUMBER */
+                if (node2.type == "number") return Variable(node1.value - node2.value);
+                /* NUMBER - STRING -> Error for now.. // Comment is: FOR EACH DIGIT IN NUMBER, REMOVE THAT DIGIT IF IT IS IN STRING AND RETURN A NUMBER */
+                else if (node2.type == "string")  {
+                    /*
+                    // string manipulation so integer float is repr as int (i.e. 5.0 -> 5)
+                    std::string n1 = std::to_string(node1.value);
+                    n1.erase(n1.find_last_not_of('0')+1,std::string::npos);
+                    if (n1.back() == '.') n1.erase(std::prev(n1.end()));
+                    // loop through each char in second string
+                    for (long long i = 0; i < n2.size(); i++) {
+                        std::string nstring; // empty string to which add chars that != current char
+                        char c1 = n2[i];
+                        for (long long j = 0; j < n1.size(); j++){
+                            char c2 = n1[j];
+                            if (c1!=c2) nstring += c2; // add char from n1 that isn't in n2.
+                        }
+                        n1 = nstring; // set n1 to nstring so it has removed its chars
+                    }
+                    return Variable(std::stof(n1));*/
+                    return Variable(Number("Invalid operation NUMBER - STRING"));
+                /* NUMBER - LIST -> REMOVES NUMBER ELEMENTS FROM FRONT */
+                } else if (node2.type == "list") {
+                    std::vector<Variable> vals;
+                    // loop all in range number -> length
+                    for (long long i = node1.value; i < node2.list.values.size(); i++) {
+                        vals.push_back(node2.list.values[i]);
+                    }
+                    return Variable(vals);
+                }
+            } else if (node1.type == "string") {
+                /* STRING - NUMBER -> ERROR (for now...) */
+                if (node2.type == "number") return Variable(Number("Invalid operation STRING - NUMBER"));
+                /* STRING - STRING -> REMOVE SUBSTRINGS EQUAL TO STRING 2 FROM MAIN STRING OUT */
+                else if (node2.type == "string") {
+                    std::string n1_s = node1.string.value;
+                    std::string n2_s = node2.string.value;
+                    std::string new_string = substringRemove(n1_s, n2_s);
+                    return Variable(new_string);
+                /* STRING - LIST -> apply subtraction to string for every element in list. */
+                } else if (node2.type == "list") {
+                    std::string n1_s = node1.string.value;
+                    for (long long i = 0; i < node2.list.values.size(); i++) {
+                        if (node2.list.values[i].type != "string"){
+                            std::string type = s_toupper(node2.list.values[i].type);
+                            return Variable(Number("Invalid operation STRING - " + type ));
+                        }
+                        n1_s = substringRemove(n1_s,node2.list.values[i].string.value);
+                    }
+                    return Variable(n1_s); // return the new string
+                }
+            } else if (node1.type == "list") {
+                /* LIST - NUMBER -> TAKES NUMBER ELEMENTS OUT FROM BACK */
+                if (node2.type == "number") {
+                    std::vector<Variable> vals;
+                    // loop over all in range 0 -> length - number
+                    for (long long i = 0; i < node1.list.values.size() - node2.value; i++) {
+                        vals.push_back(node1.list.values[i]);
+                    }
+                    return Variable(vals);
+                /* LIST - LIST -> REMOVE ANY ELEMENT FROM LIST2 THAT IS IN LIST1 */
+                } else if (node2.type == "list") {
+                    std::vector<Variable> vals;
+                    for (long long i = 0; i < node1.list.values.size(); i++) {
+                        bool in = false; // whether it is in list2.
+                        for (long long j = 0; j < node2.list.values.size(); j++) {
+                            if (node1.list.values[i] == node2.list.values[j]){
+                                in = true;break;
+                            }
+                        }
+                        if (!in) vals.push_back(node1.list.values[i]);
+                    }
+                    return Variable(vals);
+                }
+            } else {
+                return Variable(Number("Invalid left-side type for operation '+': " + node1.type));
+            }
+            return Variable(Number("Invalid right-side type for operation '+': " + node2.type));
+        }
         case NodeType::n_MULTIPLY: {
             Variable node1 = visit(node.nodes[0]);
             Variable node2 = visit(node.nodes[1]);
             if (node1.type == "number" && node2.type == "number")
                 return Variable(node1.value * node2.value);
-            else {
+            else if (node1.type == "number" || node2.type == "number") {
                 std::string ret;
                 if (node1.type == "number") {
                     ret = "";
@@ -211,20 +398,46 @@ Variable Interpreter::visit(Node node) {
                     }
                 }
                 return Variable(ret);
+            } else {
+                return Variable(Number("Invalid operation " + s_toupper(node1.type) + " * " + s_toupper(node2.type)));
             }
         }
-        case NodeType::n_DIVIDE:
-            // visit each node and div. result
-            {
-                // brackets put in so that we don't accidentally use n1 anywhere else (jump to case label error)
-                Number n1 = visit(node.nodes[0]).value;
+        case NodeType::n_DIVIDE: {
+            Variable node1 = visit(node.nodes[0]);
+            Variable node2 = visit(node.nodes[1]);
+            if (node1.type == "number" && node2.type == "number") {
                 // if denominator is zero raise zero error
-                if (n1.value == 0)
+                if (node1.value == 0)
                     throw std::runtime_error("Math error: Attempted to divide by zero\n");
-                return Variable(Number(visit(node.nodes[0]).value / visit(node.nodes[1]).value));
+                return Variable(node1.value/node2.value);
+            } else if (node1.type == "string" && node2.type == "number") {
+                std::string new_string;
+                for (long long i = 0; i < node1.string.value.size(); i++) {
+                    if (i != node2.value) new_string += node1.string.value[i];
+                }
+                return new_string;
+            } else if (node1.type == "list" && node2.type == "number") {
+                std::vector<Variable> vals;
+                for (long long i = 0; i < node1.list.values.size(); i++) {
+                    if (i != node2.value) vals.push_back(node1.list.values[i]);
+                }
+                return vals;
             }
-        case NodeType::n_POWER:
-            return Variable(Number(pow(visit(node.nodes[0]).value, visit(node.nodes[1]).value)));
+            return Variable(Number("Invalid operation " + s_toupper(node1.type) + " / " + s_toupper(node2.type)));
+        }
+        case NodeType::n_POWER: {
+            Variable node1 = visit(node.nodes[0]);
+            Variable node2 = visit(node.nodes[1]);
+            if (node1.type == "number" && node2.type == "number") return Variable(Number(pow(node1.value,node2.value)));
+            else if (node2.type == "number") {
+                if (node1.type == "string") {
+                    return Variable(String(node1.string.value[node2.value]));
+                } else if (node1.type == "list") {
+                    return node1.list.values[node2.value];
+                }
+            }
+            return Variable(Number("Invalid operation " + s_toupper(node1.type) + " ^ " + s_toupper(node2.type)));
+        }
         case NodeType::n_PLUS:
             // return a number with the node inside parens (or num) value
             return Variable(Number(visit(node.nodes[0]).value));
@@ -234,13 +447,6 @@ Variable Interpreter::visit(Node node) {
         case NodeType::n_VAR_ASSIGN:
             {
                 Variable cnode = visit(node.nodes[0]);
-                //Variable tmp = Variable(0);
-                /*if (cnode.type == "number")
-                    //tmp = Variable(cnode.value);
-                else if (cnode.type == "string")
-                    //tmp = Variable(cnode.string);
-                else if (cnode.type == "list")
-                    tmp = cnode*/
                 globalSymbolTable.set(node.name, cnode);
                 return cnode;
             }

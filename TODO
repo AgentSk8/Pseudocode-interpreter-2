@@ -1,0 +1,20 @@
+- list operations (more than these see interpreter.cpp comments)
+	- a+b adds b to back, b + a to front
+	- a - b takes b elements out from back, b - a from front
+	- a / b takes element at b out
+	- a ^ b returns element at b
+- multiple lines!!!
+	- in loops and if statements, make the executed code blocks lists
+	- these lists are formed by expr separated by ';' which should be easy to implement
+	- then in main just make it so it works by taking each line as interpreter input.
+- Error handling (?)
+- Custom Functions / Macros
+	- functions will be in syntax: FUN name(arg*COMMA) DO (expr*COMMA) RETURN expr 
+- multiple files
+	- will just execute code from other file when syntax called
+	- syntax: INSERT libname
+- std lib/builitin functs
+	- math - trig functions, sqrt etc
+	- file I/O
+	- getting code from web
+	- INSERT / SUM for list etc

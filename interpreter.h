@@ -15,6 +15,7 @@ struct Number {
 struct String {
     std::string value;
     String(std::string Value);
+    String(char Value);
     String();
 };
 struct Variable;
@@ -57,11 +58,24 @@ struct SymbolTable {
 /* NUMBER OPERATOR "<<" OVERLOAD */
 std::ostream &operator<<(std::ostream &os, Number const &n);
 
+/* STRING OPERATOR "<<" OVERLOAD */
+std::ostream &operator<<(std::ostream &os, String const &s);
+
+/* LIST OPERATOR "<<" OVERLOAD */
+std::ostream &operator<<(std::ostream &os, List const &l);
+
 /* SYMBOLTABLE OPERATOR "<<" OVERLOAD */
 std::ostream &operator<<(std::ostream &os, SymbolTable const &st);
 
 /* VARIABLE OPERATOR "<<" OVERLOAD */
 std::ostream &operator<<(std::ostream &os, Variable const &v);
+
+/* EQUALITY OPERATOR OVERLOADS */
+bool operator!=(Variable const &v1,Variable const &v2);
+bool operator==(Variable const &v1,Variable const &v2);
+bool operator==(Number const &n1,Number const &n2);
+bool operator==(String const &s1,String const &s2);
+bool operator==(List const &l1,List const &l2);
 
 /* INTERPRETER CLASS */
 class Interpreter {
