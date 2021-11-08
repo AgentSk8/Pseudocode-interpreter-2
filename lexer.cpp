@@ -58,7 +58,9 @@ std::vector<std::string> keywords = {
     "ENDWHILE",
     "PRINT",
     "READ",
-    "INPUT"
+    "INPUT",
+    "DEF",
+    "RETURN"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */

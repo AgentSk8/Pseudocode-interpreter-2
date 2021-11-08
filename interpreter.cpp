@@ -80,6 +80,14 @@ List::List(std::vector<Variable> Values) {
 /*EMPTY LIST*/
 List::List() {}
 
+/* FUNCTION DEFINITION. SEE HEADER FILE FOR CODE STRUCTURE */
+Function::Function(Node Code) {
+    code = Code;
+    name = code.name;
+}
+
+Function::Function() {}; // Empty for declaration in Variable
+
 /* OPERATOR "<<" OVERLOAD FOR NUM JUST OUTPUTS VALUE */
 std::ostream &operator<<(std::ostream &os, Number const &n) {
     if (n.nret) return os;
@@ -102,12 +110,18 @@ std::ostream &operator<<(std::ostream &os, List const &l) {
     return os << ']';
 }
 
+/* OPERATOR "<<" OVERLOAD FOR FUNCTION OUTPUTS NAME AND ADDRESS IN MEMORY */
+std::ostream &operator<<(std::ostream &os, Function const &f) {
+    return os << "<FUNCTION " << f.name << " at " << &f << ">";
+}
+
 /* ==" OPERATOR OVERLOADS */
 bool operator==(Variable const &v1,Variable const &v2) {
     if (v1.type != v2.type) return 0;
     if (v1.type == "number") return v1.number == v2.number;
     if (v1.type == "string") return v1.string == v2.string;
     if (v1.type == "list") return v1.list == v2.list;
+    if (v1.type == "function") return v1.function == v2.function;
     throw std::runtime_error("Interpreter error: Invalid type for equality: " + v1.type);
 }
 bool operator!=(Variable const &v1,Variable const &v2) {
@@ -121,6 +135,9 @@ bool operator==(String const &s1,String const &s2) {
 }
 bool operator==(List const &l1,List const &l2) {
     return l1.values == l2.values;
+}
+bool operator==(Function const &f1,Function const &f2) {
+    return f1.name == f2.name && f1.code.nodes == f2.code.nodes;
 }
 
 /* CHILD SYMBOL TABLE WITH GLOBAL PARENT */
@@ -189,28 +206,33 @@ Variable::Variable(Number number_) {
     value = number.value;
     type = "number";
 }
-
+/* STRING */
 Variable::Variable(String string_) {
     string = string_;
     type = "string";
 }
-
+/* LIST */
 Variable::Variable(List list_) {
     list = list_;
     type = "list";
 }
-
+/* FUNCTION */
+Variable::Variable(Function function_) {
+    function = function_;
+    type = "function";
+}
+/* STRING */
 Variable::Variable(std::string string_) {
     string = String(string_);
     type = "string";
 }
-
+/* NUMBER */
 Variable::Variable(float number_) {
     number = Number(number_);
     value = number.value;
     type = "number";
 }
-
+/* LIST */
 Variable::Variable(std::vector<Variable> list_) {
     list = List(list_);
     type = "list";
@@ -221,7 +243,8 @@ std::ostream &operator<<(std::ostream &os, Variable const &v) {
     if (v.type == "number") return os << v.number;
     else if (v.type == "string") return os << v.string;
     else if (v.type == "list") return os << v.list;
-    return os;
+    else if (v.type == "function") return os << v.function;
+    return os << "?";
 }
 
 /* RECURSIVELY CALL VISIT ON EACH NODE AND OPERATE WITH SAID VALUES*/
@@ -528,6 +551,11 @@ Variable Interpreter::visit(Node node) {
                 visit(node.nodes[i]);
             }
             return Variable(Number());
+        }
+        case NodeType::n_DEF: {
+            Variable cnode = Variable(Function(node));
+            globalSymbolTable.set(node.name, cnode);
+            return cnode;
         }
         default:
             return Variable(Number("Runtime error."));

@@ -4,7 +4,7 @@
 #include "parser.h"
 #include "interpreter.h"
 
-bool debug = 0;
+bool debug = 1;
 bool interpreter = 0;
 
 int main(int argc, char **argv) {
@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
             Interpreter interpreter = Interpreter(smbt);
             Variable result = interpreter.visit(tree);
             std::cout<<result << "\n";
+            std::cout << smbt << std::endl;
         }
     } else { // file
         std::string fname(argv[1]);

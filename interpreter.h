@@ -12,32 +12,67 @@ struct Number {
     Number();
 };
 
+/* STRING STRUCT */
 struct String {
     std::string value;
     String(std::string Value);
     String(char Value);
     String();
 };
+
+/* FUNCTION STRUCT */
+struct Function {
+    Node code;
+    // code has structure
+    // |_ name
+    // |_ children
+    //    |_ 0 - args
+    //    |_ 1 - execution
+    //    |_ 2 - return 
+    std::string name;
+    Function(Node Code); // PASS POINTER TO THE NODE, CREATE COPY
+    Function(); // Empty for declaration in Variable
+};
+
+/* PRE-DEFINE VARIABLE FOR LIST */
 struct Variable;
 
+/* LIST STRUCT */
 struct List {
     std::vector<Variable> values;
     List(std::vector<Variable> Values);
     List();
 };
+
+/* VARIABLE STRUCT */
+// NOTE: there is probably a better way to
+// do what I am doing here using polymorphism
+// but this works. ¯\_(ツ)_/¯
+// Parent class needed so only one type can
+// be returned - add layer of abstraction
 struct Variable {
+    /* BASE TYPES - DEFINED DEPENDS ON TYPE*/
     Number number;
     String string;
     List list;
+    Function function;
+
+    /* QUICK ACCESS TO NUMBER'S VALUE */
     float value;
+    /* SO WE KNOW WHETHER TO ACCESS this.number, string...*/
     std::string type;
-    // TODO: other var types
+
+    /* DECLARATION OF EACH OF THE TYPES*/
     Variable(Number number_); // for int / float values
     Variable(String string_);
     Variable(List list_);
+    Variable(Function function_);
+
+    /* CAN ALSO BE DEFINED BY THEIR SUBLIMINAL (?) TYPES */
     Variable(float number_);
     Variable(std::string string_);
     Variable(std::vector<Variable> list_);
+    // no subliminal for function... as node is not specifically a function
 };
 
 struct SymbolTable {
@@ -63,6 +98,9 @@ std::ostream &operator<<(std::ostream &os, String const &s);
 
 /* LIST OPERATOR "<<" OVERLOAD */
 std::ostream &operator<<(std::ostream &os, List const &l);
+
+/* FUNCTION OPERATOR "<<" OVERLOAD */
+std::ostream &operator<<(std::ostream &os, Function const &f);
 
 /* SYMBOLTABLE OPERATOR "<<" OVERLOAD */
 std::ostream &operator<<(std::ostream &os, SymbolTable const &st);

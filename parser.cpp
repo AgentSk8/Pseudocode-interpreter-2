@@ -34,6 +34,9 @@ Node::Node(NodeType Type, float Value){
 Node::Node(NodeType Type){
     type = Type;
 }
+Node::Node(){
+    type = NodeType::n_NULL;
+}
 
 /* NODE OPERATOR "<<" OVERLOAD */
 std::ostream &operator<<(std::ostream &os, Node const &n) {
@@ -76,7 +79,14 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
             }
             os << "])";
             return os;
-        }
+        } else if (t == NodeType::n_DEF) return os << "{DEF " << n.name << "(" << n.nodes[0] << ") " << n.nodes[1] << " RET " << n.nodes[2] << "}";
+        else if (t == NodeType::n_ARGS) {
+            for (int i = 0; i < n.nodes.size(); i++) {
+                os << n.nodes[i];
+                if (i != n.nodes.size()-1) os << ", ";
+            }
+            return os;
+        } else if (t == NodeType::n_ARG) return os << n.name;
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -280,6 +290,7 @@ Node Parser::atom() {
     else if (oldToken.name == "IF") return if_expr();
     else if (oldToken.name == "FOR") return for_expr();
     else if (oldToken.name == "WHILE") return while_expr();
+    else if (oldToken.name == "DEF") return def_expr();
     return builtin_expr();
 }
 
@@ -370,6 +381,7 @@ Node Parser::while_expr() {
         Node commands = Node(NodeType::n_NULL);
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "DO") {
             advance();
+            sep_expr();
             commands = block_expr({ "ENDWHILE" });
         } else {
             raiseError("Expected 'DO' keyword after 'WHILE', not '"+currentToken.to_string()+"'");
@@ -382,6 +394,58 @@ Node Parser::while_expr() {
     }
     raiseError(); // nothing
     return Node(NodeType::n_NULL);
+}
+
+Node Parser::def_expr() {
+    Token oldToken = currentToken;
+    if (oldToken.type == TokenType::t_KEYWORD && oldToken.name == "DEF") {
+        advance(); // past DEF 
+        std::string name = currentToken.name;
+        advance(); // past name
+        if (currentToken.type != t_LPAREN) raiseError("Expected '(' to start argument list.");
+        advance(); // past LPAREN
+        std::vector<std::string> args_;
+        while (currentToken.type != t_RPAREN) {
+            args_.push_back(currentToken.name);
+            std::cout << currentToken << std::endl;
+            advance(); // past identifier
+            if (currentToken.type != t_COMMA && currentToken.type != t_RPAREN) {
+                std::cout << currentToken.type << std::endl;
+                raiseError("Expected ',' or ')' to continue or end argument list, not '"+currentToken.to_string() + "'");
+            } else if (currentToken.type == t_RPAREN) {
+                break;
+            }
+            advance(); // past comma
+        }
+        advance();
+
+        // args will be node with child nodes with name equal to id.
+        Node args = Node(NodeType::n_ARGS);
+        for (long long i = 0; i < args_.size(); i++) {
+            Node tmp = Node(NodeType::n_ARG,args_[i]);
+            args.nodes.push_back(tmp);
+        }
+
+        Node commands = Node(NodeType::n_NULL);
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "DO") {
+            advance();
+            sep_expr();
+            commands = block_expr({ "RETURN" });
+        } else {
+            raiseError("Expected 'DO' keyword after 'DEF', not '"+currentToken.to_string()+"'");
+        }
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "RETURN") {
+            advance();
+            Node ret_statement = expr();
+            std::vector<Node> children = {args, commands, ret_statement};
+            Node ret = Node(NodeType::n_DEF, children);
+            ret.name = name;
+            advance();
+            return ret;
+        }
+    }
+    raiseError(); // nothing
+    return Node(NodeType::n_NULL); 
 }
 
 Node Parser::builtin_expr() {

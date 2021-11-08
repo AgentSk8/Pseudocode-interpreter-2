@@ -16,6 +16,7 @@ atom            := number | paren (expr) | string | identifier
                 := if-expr
                 := for-expr
                 := while-expr
+                := fun-expr
                 := builtin-expr
                 := list-expr
                 := block-expr
@@ -26,6 +27,8 @@ if-expr         := IF expr THEN block-expr (ELSE block-expr) ENDIF
 for-expr        := FOR  IDENTIFIER <- expr TO expr block-expr NEXT IDENTIFIER
 
 while-expr      := WHILE expr DO block-expr ENDWHILE
+
+def-expr        := DEF identifier (args (COMMA)*) DO <block-expr> RETURN expr
 
 builtin-expr    := (COMMAND NAME) (expr (COMMA))*
 

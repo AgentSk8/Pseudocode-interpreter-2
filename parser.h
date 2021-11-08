@@ -36,7 +36,10 @@ enum NodeType {
     n_INPUT = 26,
     n_STRING = 27,
     n_LIST = 28,
-    n_BLOCK = 29 // block of code - contains list of separate nodes
+    n_BLOCK = 29, // block of code - contains list of separate nodes
+    n_DEF = 30,
+    n_ARGS = 31,
+    n_ARG = 32
 };
 
 /* NODE STRUCT */
@@ -50,6 +53,7 @@ struct Node {
     Node(NodeType Type, std::string Name,std::vector<Node> Nodes); // for var assign
     Node(NodeType Type, std::string Name); // for var access
     Node(NodeType Type); // null
+    Node(); // for empty declaration in interpreter
 };
 
 /* OPERATOR "<<" OVERLOAD */
@@ -76,6 +80,7 @@ class Parser {
         Node if_expr(); // IF <condition> THEN <block_expr> (ELSE <block_expr>) ENDIF
         Node for_expr(); // FOR <expr:assignment> TO <expr:end> <block_expr> NEXT <identifier>
         Node while_expr(); // WHILE <condition> DO <block_expr> ENDWHILE
+        Node def_expr(); // DEF identifier LPAREN (identifier (COMMA))* DO <block_expr> RETURN <expr>
         Node builtin_expr(); // COMMAND (<expression> (COMMA))*
         Node block_expr(std::vector<std::string> terminators); // (expr(<sep_expr>*))* until one of terminator KEYWORDS reached. e.g. ENDIF/ELSE for IF
         int sep_expr(); // goes past any useless separators, returns the number of separators.
