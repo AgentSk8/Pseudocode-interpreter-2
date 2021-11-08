@@ -518,6 +518,12 @@ Variable Interpreter::visit(Node node) {
             globalSymbolTable.set(node.name, Variable(inp));
             return Variable(Number());
         }
+        case NodeType::n_BLOCK: {
+            for (long long i = 0; i < node.nodes.size(); i++) {
+                visit(node.nodes[i]);
+            }
+            return Variable(Number());
+        }
         default:
             return Variable(Number("Runtime error."));
 

@@ -4,7 +4,7 @@
 
 /* STRING CONSTANTS */
 std::string DIGITS = "0123456789";
-std::string WHITESPACE = " \n\t";
+std::string WHITESPACE = " \t";
 std::string ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /* MAP USED FOR TOKEN "<<" OPERATOR OVERLOAD*/
@@ -31,7 +31,8 @@ std::map<TokenType,std::string> TokenTypeMap = {
     {t_STRING,"STRING"},
 	{t_LSQBRACKET,"LSQBRACKET"},
 	{t_RSQBRACKET,"RSQBRACKET"},
-	{t_SEP,"SEP"}
+	{t_SEP,"SEP"},
+    {t_NL,"NL"}
 };
 
 /* VECTOR TO STORE KEYWORDS */
@@ -242,8 +243,10 @@ std::vector<Token> Lexer::generateTokens() {
 					operatorToken = Token(TokenType::t_RSQBRACKET);
 					break;
                 case ';':
-                case '\n':
                     operatorToken = Token(TokenType::t_SEP);
+                    break;
+                case '\n':
+                    operatorToken = Token(TokenType::t_NL);
                     break;
                 default: // unknown character
                     std::string msg = "Illegal character: ";

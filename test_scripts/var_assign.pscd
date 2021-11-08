@@ -1,0 +1,7 @@
+a <- 2^2
+b <- 2*2
+c <- 2+2
+
+PRINT a
+PRINT b
+PRINT c

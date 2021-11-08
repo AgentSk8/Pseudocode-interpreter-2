@@ -62,7 +62,7 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
         else if (t == NodeType::n_FOR) return os << "(for(" << n.nodes[0] << "->" << n.nodes[1] << ")::(" << n.nodes[2] << ")" << "next)";
         else if (t == NodeType::n_WHILE) return os << "(while(" << n.nodes[0] << ")::(" << n.nodes[1] << ")" << "next)";
         else if (t == NodeType::n_STRING) return os << '"' << n.name << '"';
-        else if (t == NodeType::n_LIST) {
+        else if (t == NodeType::n_LIST || t == NodeType::n_BLOCK) {
             os << "([";
             for (long long i = 0; i < n.nodes.size(); i++) {
                 os << n.nodes[i];
@@ -86,12 +86,26 @@ Parser::Parser(std::vector<Token> t){
 }
 Node Parser::parse(){
     if (currentToken.type == TokenType::t_NONE) return Node(NodeType::n_NULL);
+    Node result = Node(NodeType::n_BLOCK); // return a block of code
+    while (currentToken.type != TokenType::t_NONE) { // expr until equal to none
+        Node tmp_result = expr(); // call least priority (expr +/-)
+        result.nodes.push_back(tmp_result);
+        // advance all of the separators / newlines
+        int c = 0;
+        while (currentToken.type == TokenType::t_SEP || currentToken.type == TokenType::t_NL) {
+            advance();
+            c++;
+        }
+        if (c == 0) {
+            if (currentToken.type == TokenType::t_NONE) break;
+            else raiseError(); // no separators and not EOF
+        }
+    }
 
-    Node result = expr(); // call least priority (expr +/-)
     // If token is left unparsed, raise syntax error
-    if (currentToken.type != TokenType::t_NONE) raiseError(); 
+    //if (currentToken.type != TokenType::t_NONE) raiseError(); 
 
-    return result; // return parent / root node
+    return result; // return parent / root block node (node of nodes)
 }
 
 Node Parser::expr() {
@@ -281,16 +295,28 @@ Node Parser::if_expr() {
     if (oldToken.type == TokenType::t_KEYWORD && oldToken.name == "IF") {
         advance();
         Node comparison = expr();
-        Node trueExpr = Node(NodeType::n_NULL);
+        Node trueExpr = Node(NodeType::n_BLOCK);
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "THEN") {
-            advance();
-            trueExpr = expr();
+            advance(); // advance past 'THEN'
+            // whilst we haven't reached end of truexpr (endif or else),
+            // keep adding to the block expr that is truexpr
+            while (currentToken.name != "ENDIF" && currentToken.name != "ELSE") {
+                Node tmpExpr = expr();
+                trueExpr.nodes.push_back(tmpExpr); // add this expr to the block expr node
+                if (currentToken.type == TokenType::t_SEP) advance(); // advance past SEP
+            }
+
         } else {
             raiseError();
         }
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ELSE") {
-            advance();
-            Node falseExpr = expr();
+            advance(); // past 'ELSE'
+            Node falseExpr = Node(NodeType::n_BLOCK);
+            while (currentToken.name != "ENDIF") {
+                Node tmpExpr = expr();
+                falseExpr.nodes.push_back(tmpExpr); // add this expr to the block expr node
+                if (currentToken.type == TokenType::t_SEP) advance(); // advance past SEP
+            }
             if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ENDIF") {
                 std::vector<Node> children = {comparison, trueExpr, falseExpr};
                 advance();

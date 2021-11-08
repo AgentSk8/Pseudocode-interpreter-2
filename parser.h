@@ -35,7 +35,8 @@ enum NodeType {
     n_READ = 25,
     n_INPUT = 26,
     n_STRING = 27,
-    n_LIST = 28
+    n_LIST = 28,
+    n_BLOCK = 29 // block of code - contains list of separate nodes
 };
 
 /* NODE STRUCT */

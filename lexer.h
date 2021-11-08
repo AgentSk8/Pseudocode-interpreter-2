@@ -30,7 +30,8 @@ enum TokenType{
     t_STRING = 19,
 	t_LSQBRACKET = 20,
 	t_RSQBRACKET = 21,
-    t_SEP = 22 // Block separator - newline or semicolon
+    t_SEP = 22, // Block separator - semicolon
+    t_NL = 23, // NL - separate instrucs.
 };
 
 /* NEEDS TO BE 'extern' SO IT DOESN'T DUPLICATE SYMBOL*/

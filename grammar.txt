@@ -17,13 +17,17 @@ atom            := number | paren (expr) | string | identifier
                 := for-expr
                 := while-expr
                 := builtin-expr
+                := list-expr
+                := block-expr
 
-if-expr         := IF expr THEN expr (ELSE expr) ENDIF
+if-expr         := IF expr THEN block-expr (ELSE block-expr) ENDIF
 
-for-expr        := FOR  IDENTIFIER <- expr TO expr ... NEXT IDENTIFIER
+for-expr        := FOR  IDENTIFIER <- expr TO expr block-expr NEXT IDENTIFIER
 
-while-expr      := WHILE expr DO ... ENDWHILE
+while-expr      := WHILE expr DO block-expr ENDWHILE
 
 builtin-expr    := (COMMAND NAME) (expr (COMMA))*
 
 list-expr		:= brackets [expr (COMMA expr...)]
+
+block-expr      := (expr SEP)*
