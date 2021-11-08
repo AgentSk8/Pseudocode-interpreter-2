@@ -1,7 +1,12 @@
 #include "parser.h"
 #include "interpreter.h"
+#include "error.h"
 #include <math.h>
 #include <algorithm>
+
+/* ERROR DEFAULT */
+Error E_Interpreter = Error(e_RuntimeError);
+Error E_Math = Error(e_MathError);
 
 /* HELPER FUNCTION TO REMOVE ALL SUBSTRINGS FROM A MAIN STRING */
 std::string substringRemove(std::string main_string, std::string substring) {
@@ -45,7 +50,7 @@ Number::Number(float Value) {
 /* INIT NUM WITH STRING (ERROR) */
 Number::Number(std::string msg) {
     value = -1;
-    throw std::runtime_error(msg);
+    E_Interpreter.throw_(msg);
 }
 
 /* NO RETURN */
@@ -103,7 +108,7 @@ bool operator==(Variable const &v1,Variable const &v2) {
     if (v1.type == "number") return v1.number == v2.number;
     if (v1.type == "string") return v1.string == v2.string;
     if (v1.type == "list") return v1.list == v2.list;
-    throw std::runtime_error("Invalid type for equality: " + v1.type);    
+    throw std::runtime_error("Interpreter error: Invalid type for equality: " + v1.type);
 }
 bool operator!=(Variable const &v1,Variable const &v2) {
     return !(v1 == v2);
@@ -407,8 +412,8 @@ Variable Interpreter::visit(Node node) {
             Variable node2 = visit(node.nodes[1]);
             if (node1.type == "number" && node2.type == "number") {
                 // if denominator is zero raise zero error
-                if (node1.value == 0)
-                    throw std::runtime_error("Math error: Attempted to divide by zero\n");
+                if (node2.value == 0)
+                    E_Math.throw_("Division by zero error!");
                 return Variable(node1.value/node2.value);
             } else if (node1.type == "string" && node2.type == "number") {
                 std::string new_string;
@@ -423,7 +428,7 @@ Variable Interpreter::visit(Node node) {
                 }
                 return vals;
             }
-            return Variable(Number("Invalid operation " + s_toupper(node1.type) + " / " + s_toupper(node2.type)));
+            return Variable(Number("Invalid operation " + s_toupper(node1.type) + " ÷ " + s_toupper(node2.type)));
         }
         case NodeType::n_POWER: {
             Variable node1 = visit(node.nodes[0]);

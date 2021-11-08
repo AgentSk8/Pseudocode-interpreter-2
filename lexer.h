@@ -45,6 +45,7 @@ struct Token {
     Token(TokenType Type);
     Token(TokenType Type, float Value);
     Token(TokenType Type, std::string Name);
+    std::string to_string();
 };
 
 /* OPERATOR "<<" OVERLOAD */

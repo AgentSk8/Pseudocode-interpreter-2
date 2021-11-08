@@ -7,13 +7,13 @@
 bool debug = 0;
 bool interpreter = 0;
 
-std::string expression;
 int main(int argc, char **argv) {
     SymbolTable smbt = SymbolTable();
     /* SET GLOBAL VARIABLES */
     smbt.set("TRUE",1);
     smbt.set("FALSE",0);
     if (argc == 1) {
+        std::string expression;
         int c=0;
         while (1) {
             std::cout << ">>> ";

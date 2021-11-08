@@ -1,11 +1,17 @@
 #include "lexer.h"
+#include "error.h"
 #include <vector>
 #include <algorithm>
+#include <ostream>
+#include <sstream>
 
 /* STRING CONSTANTS */
 std::string DIGITS = "0123456789";
 std::string WHITESPACE = " \t";
 std::string ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/* ERROR DEFAULT */
+Error E_Lexer = Error(e_IllegalCharacter);
 
 /* MAP USED FOR TOKEN "<<" OPERATOR OVERLOAD*/
 std::map<TokenType,std::string> TokenTypeMap = {
@@ -69,6 +75,16 @@ Token::Token(TokenType Type, float Value) {
 Token::Token(TokenType Type, std::string Name) {
     type = Type;
     name = Name;
+}
+
+std::string Token::to_string() {
+    // reusing my '<<' overload method
+    std::ostream os (NULL);
+    os << this;
+    std::stringstream ss;
+    ss << os.rdbuf();
+    std::string s = ss.str();
+    return s;
 }
 
 /* OVERLOAD "<<" OPERATOR FOR TOKEN */
@@ -251,7 +267,8 @@ std::vector<Token> Lexer::generateTokens() {
                 default: // unknown character
                     std::string msg = "Illegal character: ";
                     msg += oldChar;
-                    throw std::runtime_error(msg);
+                    // throw std::runtime_error(msg);
+                    E_Lexer.throw_(msg);
             }
             tokens.push_back(operatorToken);
         }

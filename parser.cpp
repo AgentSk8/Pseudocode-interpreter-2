@@ -1,6 +1,12 @@
 #include "parser.h"
 #include "lexer.h" // for Token
+#include "error.h"
 #include <algorithm>
+#include <sstream>
+#include <ostream>
+
+/* ERROR DEFAULT */
+Error E_Parser = Error(e_InvalidSyntax);
 
 /* NODE DATACLASS */
 /**
@@ -95,7 +101,9 @@ Node Parser::parse(){
         int c = sep_expr();
         if (c == 0) {
             if (currentToken.type == TokenType::t_NONE) break;
-            else raiseError(); // no separators and not EOF
+            else {
+                raiseError("Expected ';', newline or EOF not '" + currentToken.to_string() + "'."); // no separators and not EOF
+            }
         }
     }
 
@@ -254,7 +262,7 @@ Node Parser::atom() {
         advance(); // advance into expression inside paren
         Node result = expr(); // evaluate this as a new expression
         if (currentToken.type != TokenType::t_RPAREN) {
-            raiseError(); // raise syntax error because parentheses haven't been closed
+            raiseError("Unclosed parentheses!"); // raise syntax error because parentheses haven't been closed
         }
         advance();
         return result;
@@ -306,7 +314,7 @@ Node Parser::if_expr() {
             }*/
             trueExpr = block_expr({ "ELSE","ENDIF" }); // block that runs if IF is true ends with ELSE or ENDIF
         } else {
-            raiseError();
+            raiseError("Expected 'THEN' keyword after 'IF', not '"+currentToken.to_string()+"'");
         }
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ELSE") {
             advance(); // past 'ELSE'
@@ -336,7 +344,7 @@ Node Parser::for_expr() {
             advance();
             end = expr();
         } else {
-            raiseError();
+            raiseError("Expected 'TO' keyword after 'FOR', not '"+currentToken.to_string()+"'");
         }
         // BLOCK:
 
@@ -363,7 +371,7 @@ Node Parser::while_expr() {
             advance();
             commands = block_expr({ "ENDWHILE" });
         } else {
-            raiseError();
+            raiseError("Expected 'DO' keyword after 'WHILE', not '"+currentToken.to_string()+"'");
         }
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ENDWHILE") {
             std::vector<Node> children = {comparison, commands};
@@ -396,9 +404,12 @@ Node Parser::builtin_expr() {
                 advance();
                 return Node(NodeType::n_INPUT, id);
             }
+        } else {
+            raiseError("Invalid keyword: '"+currentToken.name+"'");
         }
+    } else {
+        raiseError("Expected (END-*?) keyword!");
     }
-    raiseError();
     return Node(NodeType::n_NULL);
 }
 
@@ -423,11 +434,12 @@ int Parser::sep_expr() {
 }
 
 void Parser::raiseError(std::string msg) {
-    throw std::runtime_error("Invalid Syntax: " + msg);
+    E_Parser.throw_(msg);
+    
 }
 
 void Parser::raiseError() {
-    throw std::runtime_error("Invalid Syntax: Unknown error.");
+    E_Parser.throw_("Unknown Syntax error!");    
 }
 
 void Parser::advance() {
