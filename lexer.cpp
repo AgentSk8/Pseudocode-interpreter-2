@@ -30,7 +30,8 @@ std::map<TokenType,std::string> TokenTypeMap = {
 	{t_COMMA,"COMMA"},
     {t_STRING,"STRING"},
 	{t_LSQBRACKET,"LSQBRACKET"},
-	{t_RSQBRACKET,"RSQBRACKET"}
+	{t_RSQBRACKET,"RSQBRACKET"},
+	{t_SEP,"SEP"}
 };
 
 /* VECTOR TO STORE KEYWORDS */
@@ -240,6 +241,10 @@ std::vector<Token> Lexer::generateTokens() {
 				case ']':
 					operatorToken = Token(TokenType::t_RSQBRACKET);
 					break;
+                case ';':
+                case '\n':
+                    operatorToken = Token(TokenType::t_SEP);
+                    break;
                 default: // unknown character
                     std::string msg = "Illegal character: ";
                     msg += oldChar;

@@ -29,7 +29,8 @@ enum TokenType{
     t_COMMA = 18,
     t_STRING = 19,
 	t_LSQBRACKET = 20,
-	t_RSQBRACKET = 21
+	t_RSQBRACKET = 21,
+    t_SEP = 22 // Block separator - newline or semicolon
 };
 
 /* NEEDS TO BE 'extern' SO IT DOESN'T DUPLICATE SYMBOL*/
