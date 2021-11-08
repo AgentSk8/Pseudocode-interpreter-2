@@ -1,0 +1,13 @@
+PRINT "Input your age: "
+INPUT age
+IF age < 13 THEN
+	PRINT "You are a child"
+ELSE
+	IF age < 18
+	THEN
+		PRINT "You are a teen"
+	ELSE
+		IF age < 30 THEN PRINT "You are in your twenties"
+		ELSE PRINT "You are very old!" ENDIF
+	ENDIF
+ENDIF

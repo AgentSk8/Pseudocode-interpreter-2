@@ -73,11 +73,14 @@ class Parser {
         Node power(); // atom ^ factor (right hand is less important)
         Node atom(); // returns either a number or the expr inside parens
         Node list_expr(); // [<expr> (COMMA)*]
-        Node if_expr(); // IF <condition> THEN <expression> ELSE <expression>
-        Node for_expr(); // FOR <expr:assignment> TO <expr:end> <expr:action> NEXT <identifier>
-        Node while_expr(); // WHILE <condition> DO <expression> ENDWHILE
+        Node if_expr(); // IF <condition> THEN <block_expr> (ELSE <block_expr>) ENDIF
+        Node for_expr(); // FOR <expr:assignment> TO <expr:end> <block_expr> NEXT <identifier>
+        Node while_expr(); // WHILE <condition> DO <block_expr> ENDWHILE
         Node builtin_expr(); // COMMAND (<expression> (COMMA))*
+        Node block_expr(std::vector<std::string> terminators); // (expr(<sep_expr>*))* until one of terminator KEYWORDS reached. e.g. ENDIF/ELSE for IF
+        int sep_expr(); // goes past any useless separators, returns the number of separators.
         void raiseError(); // in case of a syntax error (at the end of factor or after parse) throw runtime error
+        void raiseError(std::string msg); // syntax error-specific message
         void advance(); // advance the cursor and check for end
         void devance(); // undo an advance
 };

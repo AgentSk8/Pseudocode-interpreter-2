@@ -91,11 +91,8 @@ Node Parser::parse(){
         Node tmp_result = expr(); // call least priority (expr +/-)
         result.nodes.push_back(tmp_result);
         // advance all of the separators / newlines
-        int c = 0;
-        while (currentToken.type == TokenType::t_SEP || currentToken.type == TokenType::t_NL) {
-            advance();
-            c++;
-        }
+
+        int c = sep_expr();
         if (c == 0) {
             if (currentToken.type == TokenType::t_NONE) break;
             else raiseError(); // no separators and not EOF
@@ -293,33 +290,31 @@ Node Parser::list_expr() {
 Node Parser::if_expr() {
     Token oldToken = currentToken;
     if (oldToken.type == TokenType::t_KEYWORD && oldToken.name == "IF") {
-        advance();
+        advance(); // past IF
         Node comparison = expr();
+        sep_expr();
         Node trueExpr = Node(NodeType::n_BLOCK);
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "THEN") {
             advance(); // advance past 'THEN'
+            sep_expr();
             // whilst we haven't reached end of truexpr (endif or else),
             // keep adding to the block expr that is truexpr
-            while (currentToken.name != "ENDIF" && currentToken.name != "ELSE") {
+            /*while (currentToken.name != "ENDIF" && currentToken.name != "ELSE") {
                 Node tmpExpr = expr();
                 trueExpr.nodes.push_back(tmpExpr); // add this expr to the block expr node
-                if (currentToken.type == TokenType::t_SEP) advance(); // advance past SEP
-            }
-
+                while (currentToken.type == TokenType::t_SEP || currentToken.type == TokenType::t_NL) advance(); // advance past all separators
+            }*/
+            trueExpr = block_expr({ "ELSE","ENDIF" }); // block that runs if IF is true ends with ELSE or ENDIF
         } else {
             raiseError();
         }
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ELSE") {
             advance(); // past 'ELSE'
-            Node falseExpr = Node(NodeType::n_BLOCK);
-            while (currentToken.name != "ENDIF") {
-                Node tmpExpr = expr();
-                falseExpr.nodes.push_back(tmpExpr); // add this expr to the block expr node
-                if (currentToken.type == TokenType::t_SEP) advance(); // advance past SEP
-            }
+            sep_expr();
+            Node falseExpr = block_expr({ "ENDIF" });
             if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ENDIF") {
                 std::vector<Node> children = {comparison, trueExpr, falseExpr};
-                advance();
+                advance(); // past ENDIF
                 return Node(NodeType::n_IF_ELSE, children);
             }
         } else if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ENDIF") {
@@ -343,8 +338,10 @@ Node Parser::for_expr() {
         } else {
             raiseError();
         }
-        // advance();
-        Node commands = expr();
+        // BLOCK:
+
+        Node commands = block_expr({ "NEXT" });
+
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "NEXT") {
             advance();
             Node step = expr();
@@ -364,7 +361,7 @@ Node Parser::while_expr() {
         Node commands = Node(NodeType::n_NULL);
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "DO") {
             advance();
-            commands = expr();
+            commands = block_expr({ "ENDWHILE" });
         } else {
             raiseError();
         }
@@ -405,9 +402,34 @@ Node Parser::builtin_expr() {
     return Node(NodeType::n_NULL);
 }
 
-void Parser::raiseError() {
-    throw std::runtime_error("Invalid Syntax.");
+Node Parser::block_expr(std::vector<std::string> terminators) { // adds all exprs until terminator KEYWORD reached (e.g. ELSE/ENDIF for truexpr in IF)
+    Node ret = Node(NodeType::n_BLOCK);
+    //while (currentToken.name != "ENDIF" && currentToken.name != "ELSE") {
+    while (std::find(terminators.begin(),terminators.end(),currentToken.name) == terminators.end()) {
+        Node tmpExpr = expr();
+        ret.nodes.push_back(tmpExpr); // add this expr to the block expr node
+        sep_expr();
+    }
+    return ret;
 }
+
+int Parser::sep_expr() {
+    int c = 0;
+    while (currentToken.type == TokenType::t_SEP || currentToken.type == TokenType::t_NL) {
+        advance(); // advance past all separators
+        c++;
+    }
+    return c;
+}
+
+void Parser::raiseError(std::string msg) {
+    throw std::runtime_error("Invalid Syntax: " + msg);
+}
+
+void Parser::raiseError() {
+    throw std::runtime_error("Invalid Syntax: Unknown error.");
+}
+
 void Parser::advance() {
     // NOTE: this would also have to be updated to use iterators
     cursorPos++;

@@ -43,13 +43,12 @@ int main(int argc, char **argv) {
     } else { // file
         std::string fname(argv[1]);
         std::string data = readFile(fname);
-        std::cout << data << std::endl;
         if (data == "ERROR") {
             throw std::runtime_error("Unable to open file " + fname);
         }
         Lexer lexer = Lexer(data);
         std::vector<Token> tokens = lexer.generateTokens();
-        std::cout << "[";
+        /*std::cout << "[";
         for (int i = 0 ; i < tokens.size(); i++) {
             Token token = tokens[i];
             if (i == tokens.size()-1)
@@ -57,7 +56,7 @@ int main(int argc, char **argv) {
             else
                 std::cout << token << ", ";
         }
-        std::cout << "]\n";
+        std::cout << "]\n";*/
         Parser parser = Parser(tokens);
         Node tree = parser.parse();
         Interpreter interpreter = Interpreter(smbt);

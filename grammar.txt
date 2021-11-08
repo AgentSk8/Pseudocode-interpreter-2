@@ -19,6 +19,7 @@ atom            := number | paren (expr) | string | identifier
                 := builtin-expr
                 := list-expr
                 := block-expr
+                := sep-expr
 
 if-expr         := IF expr THEN block-expr (ELSE block-expr) ENDIF
 
@@ -30,4 +31,6 @@ builtin-expr    := (COMMAND NAME) (expr (COMMA))*
 
 list-expr		:= brackets [expr (COMMA expr...)]
 
-block-expr      := (expr SEP)*
+block-expr      := (expr (sep-expr*))*
+
+sep-expr        := (SEP|NL)*
