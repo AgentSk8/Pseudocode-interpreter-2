@@ -1,0 +1,17 @@
+a <- 0
+b <- 1
+c <- 0
+
+PRINT "How many numbers: "
+INPUT n
+
+FOR i <- 0 TO n
+	c <- a + b
+	a <- b
+	b <- c
+	PRINT "Fibonacci nº "
+	PRINT i + 1
+	PRINT ": "
+	PRINT b
+	PRINT "\n"
+NEXT i + 1

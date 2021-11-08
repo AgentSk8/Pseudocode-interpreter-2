@@ -346,8 +346,8 @@ Node Parser::for_expr() {
         } else {
             raiseError("Expected 'TO' keyword after 'FOR', not '"+currentToken.to_string()+"'");
         }
+        sep_expr(); // remove sep
         // BLOCK:
-
         Node commands = block_expr({ "NEXT" });
 
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "NEXT") {
@@ -366,6 +366,7 @@ Node Parser::while_expr() {
     if (oldToken.type == TokenType::t_KEYWORD && oldToken.name == "WHILE") {
         advance();
         Node comparison = expr();
+        sep_expr(); // remove sep
         Node commands = Node(NodeType::n_NULL);
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "DO") {
             advance();

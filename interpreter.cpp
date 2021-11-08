@@ -508,7 +508,7 @@ Variable Interpreter::visit(Node node) {
             }
             return Variable(Number());
         }
-        case NodeType::n_PRINT: std::cout << visit(node.nodes[0]) << std::endl; return Variable(Number());
+        case NodeType::n_PRINT: std::cout << visit(node.nodes[0]) << std::flush; return Variable(Number());
         case NodeType::n_READ: {
             std::string inp;
             std::getline(std::cin, inp);

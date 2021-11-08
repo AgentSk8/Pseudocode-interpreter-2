@@ -9,7 +9,7 @@
 	- then in main just make it so it works by taking each line as interpreter input.
 - Error handling (?)
 - Custom Functions / Macros
-	- functions will be in syntax: FUN name(arg*COMMA) DO (expr*COMMA) RETURN expr 
+	- functions will be in syntax: FUN name(arg*COMMA) DO (block_expr) RETURN expr
 - multiple files
 	- will just execute code from other file when syntax called
 	- syntax: INSERT libname
