@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
             std::getline(std::cin, expression);
             Lexer lexer = Lexer(expression);
             std::vector<Token> tokens = lexer.generateTokens();
-
+            if (tokens.size() == 0) continue;
             /* DEBUGGING LEXER AND PARSER */
             if (debug) {
                 std::cout << "[";
@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
         }
         Lexer lexer = Lexer(data);
         std::vector<Token> tokens = lexer.generateTokens();
+        if (tokens.size() == 0) return 0;
         /*std::cout << "[";
         for (int i = 0 ; i < tokens.size(); i++) {
             Token token = tokens[i];
@@ -64,4 +65,5 @@ int main(int argc, char **argv) {
         Interpreter interpreter = Interpreter(smbt);
         Variable result = interpreter.visit(tree);
     }
+    return 0;
 }

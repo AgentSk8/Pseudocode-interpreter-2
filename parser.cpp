@@ -112,6 +112,7 @@ Node Parser::parse(){
     if (currentToken.type == TokenType::t_NONE) return Node(NodeType::n_NULL);
     Node result = Node(NodeType::n_BLOCK); // return a block of code
     while (currentToken.type != TokenType::t_NONE) { // expr until equal to none
+        sep_expr(); // in case start with newlines
         Node tmp_result = expr(); // call least priority (expr +/-)
         result.nodes.push_back(tmp_result);
         // advance all of the separators / newlines

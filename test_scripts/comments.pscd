@@ -1,0 +1,8 @@
+REM this is a comment
+REM it is similar to comments in BASIC
+
+PRINT "Enter a number: "		REM This is an inline comment
+INPUT a REM you can have as little
+PRINT a^2 + "\n"							REM or as much
+
+REM space as you want!

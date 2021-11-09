@@ -61,7 +61,8 @@ std::vector<std::string> keywords = {
     "INPUT",
     "DEF",
     "RETURN",
-    "ENDEF"
+    "ENDEF",
+    "REM"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */
@@ -195,8 +196,21 @@ std::vector<Token> Lexer::generateTokens() {
         else if (currentChar == '.' or DIGITS.find(currentChar) != std::string::npos)
             tokens.push_back(generateNumber());
         /* IF LETTERS, GENERATE IDENTIFIER OR KEYWORD*/
-        else if (ALPHABET.find(currentChar) != std::string::npos)
-            tokens.push_back(generateWord());
+        else if (ALPHABET.find(currentChar) != std::string::npos) {
+            Token word = generateWord();
+            if (word.name == "REM") {
+                while (currentChar != '\n' && currentChar != '\0') {
+                    advance();
+                }
+                if (currentChar == '\n') {
+                    advance(); // newline
+                    tokens.push_back(TokenType::t_NL);
+                }
+                if (currentChar == '\0') break;
+            } else {
+                tokens.push_back(word);
+            }
+        }
         /* CHECK FOR OPERATORS */
         else {
             char oldChar = currentChar;
