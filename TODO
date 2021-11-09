@@ -19,7 +19,7 @@
 	- Smbt includes a modules array, so we don't reinclude modules
 	- INCLUDE _libname_ - builtin
 - std lib/builitin functs
-	- math - trig functions, sqrt etc
+	- math - trig functions, sqrt etc -  _math_
 		- pi -> constant in smbt
 		- e.g. sqrt -> a ^ 0.5
 		- factorial -> use loops
