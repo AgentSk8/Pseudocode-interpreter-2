@@ -20,8 +20,6 @@ int main(int argc, char **argv) {
             std::getline(std::cin, expression);
             Lexer lexer = Lexer(expression);
             std::vector<Token> tokens = lexer.generateTokens();
-            Parser parser = Parser(tokens);
-            Node tree = parser.parse();
 
             /* DEBUGGING LEXER AND PARSER */
             if (debug) {
@@ -34,12 +32,15 @@ int main(int argc, char **argv) {
                         std::cout << token << ", ";
                 }
                 std::cout << "]\n";
+            }
+            Parser parser = Parser(tokens);
+            Node tree = parser.parse();
+            if (debug) {
                 std::cout << "AST: " << tree << "\n";
             }
             Interpreter interpreter = Interpreter(smbt);
             Variable result = interpreter.visit(tree);
             std::cout<<result << "\n";
-            std::cout << smbt << std::endl;
         }
     } else { // file
         std::string fname(argv[1]);

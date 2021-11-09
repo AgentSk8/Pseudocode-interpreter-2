@@ -39,7 +39,9 @@ enum NodeType {
     n_BLOCK = 29, // block of code - contains list of separate nodes
     n_DEF = 30,
     n_ARGS = 31,
-    n_ARG = 32
+    n_ARG = 32,
+    n_FUNCTION_CALL = 33,
+    n_RETURN = 34
 };
 
 /* NODE STRUCT */

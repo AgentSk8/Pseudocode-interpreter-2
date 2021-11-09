@@ -9,12 +9,33 @@
 	- then in main just make it so it works by taking each line as interpreter input.
 - Error handling (?)
 - Custom Functions / Macros
-	- functions will be in syntax: FUN name(arg*COMMA) DO (block_expr) RETURN expr
+	- functions will be in syntax: DEF name(arg*COMMA) DO (block_expr) RETURN expr
+	- calling functions: name(args*COMMA) -> part of expr (i.e. f(a) + b adds value of f(a) into b)
+	- ENDEF !!!
+- Comments
 - multiple files
 	- will just execute code from other file when syntax called
-	- syntax: INSERT libname
+	- syntax: INCLUDE libname
+	- Smbt includes a modules array, so we don't reinclude modules
+	- INCLUDE _libname_ - builtin
 - std lib/builitin functs
 	- math - trig functions, sqrt etc
-	- file I/O
-	- getting code from web
-	- INSERT / SUM for list etc
+		- pi -> constant in smbt
+		- e.g. sqrt -> a ^ 0.5
+		- factorial -> use loops
+		- sin(angle) -> approximation:
+			- y = x - (x^3)/3! + (x^5)/5! - (x^7)/7!
+			- up to 19
+			- only for angles -π to π in radians.
+			- so subtract pi from a range 0 - 2π
+		- cos(angle) -> sin(90 - angle)
+		- tan(angle) -> sqrt(1-cos(2*angle)/1+cos(2*angle))
+		- deg(rad) -> rad * 180 / π
+		- rad(deg) -> deg × π/180
+	- file I/O - _fio_
+	- getting code from web - _requests_
+	- _functools_
+		- combinatorics
+		- SUM(list)
+		- INSERT(val, list)
+		- etc...

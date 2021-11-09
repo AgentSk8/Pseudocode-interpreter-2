@@ -20,22 +20,39 @@ struct String {
     String();
 };
 
+/* Forward declar Variable for symbol table and list */
+struct Variable;
+
+// symbol table declared here for function
+struct SymbolTable {
+    public:
+    std::map<std::string, Variable> m;
+    SymbolTable* parent;
+    bool null;
+
+    SymbolTable(SymbolTable* Parent);
+    SymbolTable();
+    SymbolTable(bool nul);
+    bool includes(std::string key);
+    void set(std::string key, Variable value);
+    void set(std::string key, float value);
+    void remove(std::string key);
+    Variable get(std::string key);
+};
+
 /* FUNCTION STRUCT */
 struct Function {
     Node code;
+    SymbolTable smbt;
     // code has structure
     // |_ name
     // |_ children
     //    |_ 0 - args
-    //    |_ 1 - execution
-    //    |_ 2 - return 
+    //    |_ 1 - execution - return statement auto returns
     std::string name;
     Function(Node Code); // PASS POINTER TO THE NODE, CREATE COPY
     Function(); // Empty for declaration in Variable
 };
-
-/* PRE-DEFINE VARIABLE FOR LIST */
-struct Variable;
 
 /* LIST STRUCT */
 struct List {
@@ -62,6 +79,9 @@ struct Variable {
     /* SO WE KNOW WHETHER TO ACCESS this.number, string...*/
     std::string type;
 
+    /* EMPTY VAR */
+    Variable();
+
     /* DECLARATION OF EACH OF THE TYPES*/
     Variable(Number number_); // for int / float values
     Variable(String string_);
@@ -73,21 +93,6 @@ struct Variable {
     Variable(std::string string_);
     Variable(std::vector<Variable> list_);
     // no subliminal for function... as node is not specifically a function
-};
-
-struct SymbolTable {
-    std::map<std::string, Variable> m;
-    SymbolTable* parent;
-    bool null;
-
-    SymbolTable(SymbolTable* Parent);
-    SymbolTable();
-    SymbolTable(bool nul);
-    bool includes(std::string key);
-    void set(std::string key, Variable value);
-    void set(std::string key, float value);
-    void remove(std::string key);
-    Variable get(std::string key);
 };
 
 /* NUMBER OPERATOR "<<" OVERLOAD */
@@ -118,6 +123,8 @@ bool operator==(List const &l1,List const &l2);
 /* INTERPRETER CLASS */
 class Interpreter {
     SymbolTable& globalSymbolTable;
+    bool return_ = 0;
+    Variable return_value;
     public:
         Interpreter(SymbolTable& GlobalSymbolTable) : globalSymbolTable(GlobalSymbolTable) {}
         Variable visit(Node node); // visit each node and return result in parent node

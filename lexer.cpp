@@ -60,7 +60,8 @@ std::vector<std::string> keywords = {
     "READ",
     "INPUT",
     "DEF",
-    "RETURN"
+    "RETURN",
+    "ENDEF"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */

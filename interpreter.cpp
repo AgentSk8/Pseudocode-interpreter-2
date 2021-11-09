@@ -84,6 +84,10 @@ List::List() {}
 Function::Function(Node Code) {
     code = Code;
     name = code.name;
+    std::vector<Node> tmp_args = code.nodes[0].nodes;
+    for (int i = 0; i < tmp_args.size(); i++) {
+        smbt.set(tmp_args[i].name,0); // set said key at undefined 0 for now
+    }
 }
 
 Function::Function() {}; // Empty for declaration in Variable
@@ -112,7 +116,8 @@ std::ostream &operator<<(std::ostream &os, List const &l) {
 
 /* OPERATOR "<<" OVERLOAD FOR FUNCTION OUTPUTS NAME AND ADDRESS IN MEMORY */
 std::ostream &operator<<(std::ostream &os, Function const &f) {
-    return os << "<FUNCTION " << f.name << " at " << &f << ">";
+    return os << "<function " << f.name << " @ " << &f << ">\nWith symbols:\n" << f.smbt;
+
 }
 
 /* ==" OPERATOR OVERLOADS */
@@ -199,6 +204,9 @@ Variable SymbolTable::get(std::string key) {
         return parent -> get(key); // Otherwise try to get from parent
     }
 }
+
+/* FOR EMPTY DECLARATIONS */
+Variable::Variable() { }
 
 /* FOR NUM TYPE VARS */
 Variable::Variable(Number number_) {
@@ -507,13 +515,13 @@ Variable Interpreter::visit(Node node) {
             return Variable(Number(!visit(node.nodes[0]).value));
         case NodeType::n_IF: {
             bool result = visit(node.nodes[0]).value; // get the condition
-            if (result) return Variable(Number(visit(node.nodes[1]).value));
+            if (result) return visit(node.nodes[1]);
             return Variable(Number(0));
         }
         case NodeType::n_IF_ELSE: {
             bool result = visit(node.nodes[0]).value;
-            if (result) return Variable(Number(visit(node.nodes[1]).value));
-            return Variable(Number(visit(node.nodes[2]).value));
+            if (result) return visit(node.nodes[1]);
+            return visit(node.nodes[2]);
         }
         case NodeType::n_FOR: {
             // assignment, end, commands, step
@@ -521,15 +529,17 @@ Variable Interpreter::visit(Node node) {
             while (globalSymbolTable.get(node.nodes[0].name).value != visit(node.nodes[1]).value) {
                 visit(node.nodes[2]);
                 globalSymbolTable.set(node.nodes[0].name,visit(node.nodes[3]));
+                if (return_) break;
             }
-            return Variable(Number());
+            return return_value;
         }
         case NodeType::n_WHILE: {
             // comparison, commands
             while (visit(node.nodes[0]).value) {
                 visit(node.nodes[1]);
+                if (return_) break; // if inside func and return, break
             }
-            return Variable(Number());
+            return return_value;
         }
         case NodeType::n_PRINT: std::cout << visit(node.nodes[0]) << std::flush; return Variable(Number());
         case NodeType::n_READ: {
@@ -548,6 +558,7 @@ Variable Interpreter::visit(Node node) {
         }
         case NodeType::n_BLOCK: {
             for (long long i = 0; i < node.nodes.size(); i++) {
+                if (node.nodes[i].type == NodeType::n_RETURN) return visit(node.nodes[i]);
                 visit(node.nodes[i]);
             }
             return Variable(Number());
@@ -557,8 +568,41 @@ Variable Interpreter::visit(Node node) {
             globalSymbolTable.set(node.name, cnode);
             return cnode;
         }
+        case NodeType::n_FUNCTION_CALL: {
+            // get original function from global symboltable
+            Function fun = globalSymbolTable.get(node.name).function;
+            // get arg names
+            std::vector<std::string> arg_names;
+            for(std::map<std::string,Variable>::const_iterator it = fun.smbt.m.begin(); it != fun.smbt.m.end(); ++it) {
+                arg_names.push_back(it->first);
+            }
+            // copy global symbol table to fun smbt
+            SymbolTable fun_smbt = globalSymbolTable;
+            // evaluate all arg values
+            // and plug said values into smbt, overriding global if needed
+            Node args_ = node.nodes[0];
+            for (int i = 0; i < args_.nodes.size(); i++) {
+                fun_smbt.set(arg_names[i],visit(args_.nodes[i]));
+            }
+            // run function with its smbt
+            // (i.e., new interpreter with
+            // parent smbt as this smbt
+            // and smbt normal as the function
+            // object smbt)
+            Interpreter tmp_fun = Interpreter(fun_smbt);
+            // call visit on the block of
+            // function, which returns val
+            tmp_fun.visit(fun.code.nodes[1]); // block - returns the value
+            return tmp_fun.return_value;
+        }
+        case n_RETURN: {
+            // global vars so can return.
+            return_ = 1;
+            return_value = visit(node.nodes[0]);
+            return return_value;
+        }
         default:
-            return Variable(Number("Runtime error."));
+            return Variable(Number("Unknown runtime error."));
 
     };
 }

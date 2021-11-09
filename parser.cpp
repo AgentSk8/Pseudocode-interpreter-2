@@ -79,7 +79,7 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
             }
             os << "])";
             return os;
-        } else if (t == NodeType::n_DEF) return os << "{DEF " << n.name << "(" << n.nodes[0] << ") " << n.nodes[1] << " RET " << n.nodes[2] << "}";
+        } else if (t == NodeType::n_DEF) return os << "{DEF " << n.name << "(" << n.nodes[0] << ") " << n.nodes[1] << "}";
         else if (t == NodeType::n_ARGS) {
             for (int i = 0; i < n.nodes.size(); i++) {
                 os << n.nodes[i];
@@ -87,6 +87,14 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
             }
             return os;
         } else if (t == NodeType::n_ARG) return os << n.name;
+        else if (t == NodeType::n_FUNCTION_CALL) {
+            os <<'{'<< n.name << "(";
+            for (int i = 0; i < n.nodes.size(); i++) {
+                os << n.nodes[i];
+                if (i != n.nodes.size()-1) os << ", ";
+            }
+            return os << ")}";
+        } else if (t == NodeType::n_RETURN) return os << "{RET " << n.nodes[0] << "}";
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -284,6 +292,23 @@ Node Parser::atom() {
         return Node(NodeType::n_STRING, oldToken.name);
     } else if (oldToken.type == TokenType::t_IDENTIFIER) { // access the identifier
         advance();
+        if (currentToken.type == TokenType::t_LPAREN) { // accessing function
+            advance(); // past LPAREN
+            Node args = Node(NodeType::n_ARGS);
+            while (currentToken.type != t_RPAREN) {
+                Node arg = expr();
+                args.nodes.push_back(arg);
+                // no need for advance as expr already advances past itself
+                if (currentToken.type != t_COMMA && currentToken.type != t_RPAREN) {
+                    raiseError("Expected ',' or ')' to continue or end argument list, not '"+currentToken.to_string() + "'");
+                } else if (currentToken.type == t_RPAREN) {
+                    break;
+                }
+                advance(); // past comma
+            }
+            advance(); // past rparen
+            return Node(NodeType::n_FUNCTION_CALL, oldToken.name, { args }); // type, name of func, args as child[0]
+        }
         return Node(NodeType::n_VAR_ACCESS, oldToken.name);
     }
     if (oldToken.type == TokenType::t_LSQBRACKET) return list_expr();
@@ -407,10 +432,8 @@ Node Parser::def_expr() {
         std::vector<std::string> args_;
         while (currentToken.type != t_RPAREN) {
             args_.push_back(currentToken.name);
-            std::cout << currentToken << std::endl;
             advance(); // past identifier
             if (currentToken.type != t_COMMA && currentToken.type != t_RPAREN) {
-                std::cout << currentToken.type << std::endl;
                 raiseError("Expected ',' or ')' to continue or end argument list, not '"+currentToken.to_string() + "'");
             } else if (currentToken.type == t_RPAREN) {
                 break;
@@ -430,14 +453,12 @@ Node Parser::def_expr() {
         if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "DO") {
             advance();
             sep_expr();
-            commands = block_expr({ "RETURN" });
+            commands = block_expr({ "ENDEF" });
         } else {
             raiseError("Expected 'DO' keyword after 'DEF', not '"+currentToken.to_string()+"'");
         }
-        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "RETURN") {
-            advance();
-            Node ret_statement = expr();
-            std::vector<Node> children = {args, commands, ret_statement};
+        if (currentToken.type == TokenType::t_KEYWORD && currentToken.name == "ENDEF") {
+            std::vector<Node> children = {args, commands};
             Node ret = Node(NodeType::n_DEF, children);
             ret.name = name;
             advance();
@@ -469,6 +490,9 @@ Node Parser::builtin_expr() {
                 advance();
                 return Node(NodeType::n_INPUT, id);
             }
+        } else if (n == "RETURN") {
+            std::vector<Node> children = { expr() };
+            return Node(NodeType::n_RETURN, children);
         } else {
             raiseError("Invalid keyword: '"+currentToken.name+"'");
         }
@@ -504,7 +528,7 @@ void Parser::raiseError(std::string msg) {
 }
 
 void Parser::raiseError() {
-    E_Parser.throw_("Unknown Syntax error!");    
+    E_Parser.throw_("Unknown Syntax error! Caused by '" + currentToken.to_string() +"'");    
 }
 
 void Parser::advance() {
