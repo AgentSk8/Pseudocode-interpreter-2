@@ -13,7 +13,7 @@ ENDEF
 
 DEF listDir(d) DO
 	list <- shell("ls")
-	
+ENDEF
 
 REM Function commented for danger of losing work...
 REM DEF removeDir(f) DO

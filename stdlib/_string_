@@ -1,7 +1,27 @@
-DEF split(str,sep) DO
+DEF toList(str) DO
 	l <- []
 	FOR i <- 0 TO sizeof(str)
-		PRINT str ^i
+		l <- l + str^i
 	NEXT i + 1
+	RETURN l
+ENDEF
+
+DEF split(str,sep) DO
+	REM sep must be a char!
+	IF sizeof(sep) > 1 THEN
+		RETURN 0
+	ENDIF
+	l <- []
+	tmp <- ""
+	FOR i <- 0 TO sizeof(str)
+		c <- str^i
+		IF c = sep THEN
+			l <- l + tmp
+			tmp <- ""
+		ELSE
+			tmp <- tmp + c
+		ENDIF
+	NEXT i + 1
+	l <- l + tmp
 	RETURN l
 ENDEF

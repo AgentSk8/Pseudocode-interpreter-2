@@ -557,10 +557,50 @@ Variable Interpreter::visit(Node node) {
         }
         case NodeType::n_VAR_ACCESS:
             return globalSymbolTable.get(node.name);
-        case NodeType::n_EE:
-            return Variable(Number(visit(node.nodes[0]).value == visit(node.nodes[1]).value));
-        case NodeType::n_NE:
-            return Variable(Number(visit(node.nodes[0]).value != visit(node.nodes[1]).value));
+        case NodeType::n_EE: {
+			Variable n1 = visit(node.nodes[0]);
+			Variable n2 = visit(node.nodes[1]);
+			if (n1.type == "number"){
+				if (n2.type == "number") {
+					return Variable(Number(n1.value==n2.value));
+				} else if (n2.type == "string") {
+					return Variable(Number(std::to_string(n1.value)==n2.string));
+				} else return Variable(Number(0));
+			} else if (n1.type == "string") {
+				if (n2.type == "string") {
+					return Variable(Number(n1.string==n2.string));
+				} else if (n2.type == "number") {
+					return Variable(Number(std::to_string(n2.value)==n1.string));
+				} else return Variable(Number(0));
+			} else if (n1.type == "list") {
+				if (n2.type == "list") {
+					return Variable(Number(n1.list.values == n2.list.values));
+				} else return Variable(Number(0));
+			}
+			return Variable(Number("Invalid operation '"+n1.type+"' = '" + n2.type + "'"));
+		}
+        case NodeType::n_NE: {
+			Variable n1 = visit(node.nodes[0]);
+			Variable n2 = visit(node.nodes[1]);
+			if (n1.type == "number"){
+				if (n2.type == "number") {
+					return Variable(Number(n1.value!=n2.value));
+				} else if (n2.type == "string") {
+					return Variable(Number(std::to_string(n1.value)!=n2.string));
+				} else return Variable(Number(0));
+			} else if (n1.type == "string") {
+				if (n2.type == "string") {
+					return Variable(Number(n1.string!=n2.string));
+				} else if (n2.type == "number") {
+					return Variable(Number(std::to_string(n2.value)!=n1.string));
+				} else return Variable(Number(0));
+			} else if (n1.type == "list") {
+				if (n2.type == "list") {
+					return Variable(Number(n1.list.values != n2.list.values));
+				} else return Variable(Number(0));
+			}
+			return Variable(Number("Invalid operation '"+n1.type+"' <> '" + n2.type + "'"));
+		}
         case NodeType::n_LT:
             return Variable(Number(visit(node.nodes[0]).value < visit(node.nodes[1]).value));
         case NodeType::n_GT:

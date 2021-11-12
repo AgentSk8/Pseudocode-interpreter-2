@@ -1,3 +1,4 @@
 INCLUDE "_string_"
 
-PRINT split("hello",2)
+PRINT toList("Hello World!")
+PRINT split("Hello World!"," ")
