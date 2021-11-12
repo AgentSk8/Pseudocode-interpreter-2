@@ -1,0 +1,7 @@
+INCLUDE "_fio_"
+
+writeFile("tester.txt","CLEARED\n")
+PRINT "1st operation: \n" + readFile("tester.txt")
+
+appendFile("tester.txt","APPENDED\n")
+PRINT "2nd operation: \n" + readFile("tester.txt")

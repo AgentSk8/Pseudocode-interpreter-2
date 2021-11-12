@@ -4,19 +4,31 @@ DEF sqrt(a) DO
 ENDEF
 DEF factorial(a) DO
 	b <- 1
-	FOR i <- 1 TO a
-		b <- b * a
+	FOR i <- 1 TO a+1
+		b <- b * i
 	NEXT i + 1
 	RETURN b
 ENDEF
 DEF sin(a) DO
-	RETURN a - (a^3)/factorial(3) + (a^5)/factorial(5) - (a^7)/factorial(7) + (a^11)/factorial(11) - (a^13)/factorial(13) + (a^15)/factorial(15) - (a^17)/factorial(17) + (a^19)/factorial(19)
+	op <- -1
+	r <- a
+	FOR i <- 3 TO 19
+		r <- r + ((a^i)/factorial(i))*op
+		op <- op * -1
+	NEXT i +2
+	RETURN r
 ENDEF
 DEF cos(a) DO
-	RETURN sin(90-a)
+	op <- -1
+	r <- 1
+	FOR i <- 2 TO 18
+		r <- r + ((a^i)/factorial(i))*op
+		op <- op * -1
+	NEXT i +2
+	RETURN r
 ENDEF
 DEF tan(a) DO
-	RETURN sqrt(1-cos(2*a)/1+cos(2*a))
+	RETURN sin(a)/cos(a)
 ENDEF
 DEF deg(a) DO
 	RETURN a * 180 / PI

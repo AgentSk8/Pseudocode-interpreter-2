@@ -44,6 +44,7 @@ struct SymbolTable {
 struct Function {
     Node code;
     SymbolTable smbt;
+	std::vector<Node> argus;
     // code has structure
     // |_ name
     // |_ children

@@ -1,3 +1,11 @@
 INCLUDE "_math_"
 
-PRINT sqrt(4)
+PRINT "Number: "
+INPUT n
+PRINT "Square root of " + n + ": " + sqrt(n) + "\n"
+PRINT "Factorial of " + n + ": " + factorial(n) + "\n"
+PRINT "Sin of " + n + ": " + sin(n) + "\n"
+PRINT "Cos of " + n + ": " + cos(n) + "\n"
+PRINT "Tan of " + n + ": " + tan(n) + "\n"
+PRINT n + "c = " + deg(n) + "º\n"
+PRINT n + "º = " + rad(n) + "c\n"

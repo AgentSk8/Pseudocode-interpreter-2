@@ -86,9 +86,9 @@ List::List() {}
 Function::Function(Node Code) {
     code = Code;
     name = code.name;
-    std::vector<Node> tmp_args = code.nodes[0].nodes;
-    for (int i = 0; i < tmp_args.size(); i++) {
-        smbt.set(tmp_args[i].name,0); // set said key at undefined 0 for now
+    argus = code.nodes[0].nodes;
+    for (int i = 0; i < argus.size(); i++) {
+        smbt.set(argus[i].name,0); // set said key at undefined 0 for now
     }
 }
 
@@ -247,6 +247,66 @@ Variable::Variable(std::vector<Variable> list_) {
     list = List(list_);
     type = "list";
 }
+
+
+
+
+/* CODE FOR RUNNING SHELL COMMANDS AND GETTING OUTPUT. CREDIT GOES TO https://raymii.org/s/articles/Execute_a_command_and_get_both_output_and_exit_code.html*/
+///////////////////////////////////
+////////// STARTS HERE ////////////
+///////////////////////////////////
+struct CommandResult {
+    std::string output;
+    int exitstatus;
+
+    friend std::ostream &operator<<(std::ostream &os, const CommandResult &result) {
+        os << "command exitstatus: " << result.exitstatus << " output: " << result.output;
+        return os;
+    }
+    bool operator==(const CommandResult &rhs) const {
+        return output == rhs.output &&
+               exitstatus == rhs.exitstatus;
+    }
+    bool operator!=(const CommandResult &rhs) const {
+        return !(rhs == *this);
+    }
+};
+
+class Command {
+
+public:
+    static CommandResult exec(const std::string &command) {
+        int exitcode = 255;
+        std::array<char, 1048576> buffer {};
+        std::string result;
+#ifdef _WIN32
+#define popen _popen
+#define pclose _pclose
+#define WEXITSTATUS
+#endif
+        FILE *pipe = popen(command.c_str(), "r");
+        if (pipe == nullptr) {
+            throw std::runtime_error("popen() failed!");
+        }
+        try {
+            std::size_t bytesread;
+            while ((bytesread = fread(buffer.data(), sizeof(buffer.at(0)), sizeof(buffer), pipe)) != 0) {
+                result += std::string(buffer.data(), bytesread);
+            }
+        } catch (...) {
+            pclose(pipe);
+            throw;
+        }
+        exitcode = WEXITSTATUS(pclose(pipe));
+        return CommandResult{result, exitcode};
+    }
+};
+/////////////////////////////////
+////////// ENDS HERE ////////////
+/////////////////////////////////
+
+
+
 
 /* VARIABLE << OPERATOR */
 std::ostream &operator<<(std::ostream &os, Variable const &v) {
@@ -571,12 +631,19 @@ Variable Interpreter::visit(Node node) {
             return cnode;
         }
         case NodeType::n_FUNCTION_CALL: {
+			// first check whether it is special function system
+			if (node.name == "shell") {
+				Variable arg = visit(node.nodes[0].nodes[0]); // argument
+				CommandResult cr = Command::exec("cd "+*cwd+';'+ arg.string.value);
+				if (cr.exitstatus != 0) return Variable(Number(cr.exitstatus));
+				return Variable(String(cr.output));
+			}
             // get original function from global symboltable
             Function fun = globalSymbolTable.get(node.name).function;
             // get arg names
             std::vector<std::string> arg_names;
-            for(std::map<std::string,Variable>::const_iterator it = fun.smbt.m.begin(); it != fun.smbt.m.end(); ++it) {
-                arg_names.push_back(it->first);
+            for(Node n : fun.argus) {
+                arg_names.push_back(n.name);
             }
             // copy global symbol table to fun smbt
             SymbolTable fun_smbt = globalSymbolTable;
@@ -592,6 +659,7 @@ Variable Interpreter::visit(Node node) {
             // and smbt normal as the function
             // object smbt)
             Interpreter tmp_fun = Interpreter(fun_smbt);
+			tmp_fun.cwd = cwd;
             // call visit on the block of
             // function, which returns val
             tmp_fun.visit(fun.code.nodes[1]); // block - returns the value
@@ -630,6 +698,7 @@ Variable Interpreter::visit(Node node) {
 			Parser parser = Parser(tokens);
 			Node tree = parser.parse();
 			Interpreter interpreter = Interpreter(globalSymbolTable);
+			interpreter.cwd = cwd;
         	Variable result = interpreter.visit(tree);
 			SymbolTable inter = interpreter.globalSymbolTable;
 			

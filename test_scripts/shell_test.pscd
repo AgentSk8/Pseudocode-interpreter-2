@@ -1,0 +1,6 @@
+PRINT "LS: \n"
+PRINT shell("ls")
+PRINT "\nCAT shell_test.pscd: \n"
+PRINT shell("cat shell_test.pscd")
+PRINT "\n../main hello_world.pscd: \n"
+PRINT shell("../main hello_world.pscd")

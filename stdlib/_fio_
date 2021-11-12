@@ -1,0 +1,9 @@
+DEF readFile(f) DO
+	RETURN shell("cat " + f)
+ENDEF
+DEF writeFile(f,data) DO
+	RETURN shell("echo '"+data+"' >| " +f)
+ENDEF
+DEF appendFile(f,data) DO
+	RETURN shell("echo '"+data+"' >> "+f)
+ENDEF

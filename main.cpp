@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
         std::cout << "]\n";*/
         Parser parser = Parser(tokens);
         Node tree = parser.parse();
+		//std::cout << "AST: " << tree << "\n";
         Interpreter interpreter = Interpreter(smbt);
 		interpreter.cwd = &cwd;
         Variable result = interpreter.visit(tree);
