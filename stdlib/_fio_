@@ -7,3 +7,15 @@ ENDEF
 DEF appendFile(f,data) DO
 	RETURN shell("echo '"+data+"' >> "+f)
 ENDEF
+DEF removeFile(f) DO
+	RETURN shell("rm " + f)
+ENDEF
+
+DEF listDir(d) DO
+	list <- shell("ls")
+	
+
+REM Function commented for danger of losing work...
+REM DEF removeDir(f) DO
+REM 	RETURN shell("rm -fr")
+REM ENDEF

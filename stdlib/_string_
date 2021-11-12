@@ -1,0 +1,7 @@
+DEF split(str,sep) DO
+	l <- []
+	FOR i <- 0 TO sizeof(str)
+		PRINT str ^i
+	NEXT i + 1
+	RETURN l
+ENDEF

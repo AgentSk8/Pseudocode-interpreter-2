@@ -324,6 +324,12 @@ Node Parser::atom() {
 Node Parser::list_expr() {
     Token oldToken = currentToken;
     std::vector<Node> elements;
+	advance();
+	if (currentToken.type == TokenType::t_RSQBRACKET){
+		advance();
+		return Node(NodeType::n_LIST, {});
+	}
+	devance();
     while (currentToken.type != TokenType::t_RSQBRACKET) {
         advance();
         Node element = expr();

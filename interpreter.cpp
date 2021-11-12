@@ -637,6 +637,19 @@ Variable Interpreter::visit(Node node) {
 				CommandResult cr = Command::exec("cd "+*cwd+';'+ arg.string.value);
 				if (cr.exitstatus != 0) return Variable(Number(cr.exitstatus));
 				return Variable(String(cr.output));
+			} else if (node.name == "sizeof") {
+				Variable arg = visit(node.nodes[0].nodes[0]);
+				int val;
+				if (arg.type == "string") {
+					val = arg.string.value.size();
+				} else if (arg.type == "number") {
+					val = sizeof(arg.number.value);
+				} else if (arg.type == "list") {
+					val = arg.list.values.size();
+				} else {
+					return Variable(Number("Invalid type for special funciton sizeof: '"+arg.type+"'."));
+				}
+				return Variable(Number(val));
 			}
             // get original function from global symboltable
             Function fun = globalSymbolTable.get(node.name).function;

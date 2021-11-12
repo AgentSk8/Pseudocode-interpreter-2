@@ -1,0 +1,3 @@
+INCLUDE "_string_"
+
+PRINT split("hello",2)
