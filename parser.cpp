@@ -95,6 +95,7 @@ std::ostream &operator<<(std::ostream &os, Node const &n) {
             }
             return os << ")}";
         } else if (t == NodeType::n_RETURN) return os << "{RET " << n.nodes[0] << "}";
+		else if (t == NodeType::n_INCLUDE) return os << "{INCLUDE " << n.nodes[0] << "}";
         else return os << "?"; // otherwise return unknown
     }
 };
@@ -494,10 +495,13 @@ Node Parser::builtin_expr() {
         } else if (n == "RETURN") {
             std::vector<Node> children = { expr() };
             return Node(NodeType::n_RETURN, children);
+		} else if (n == "INCLUDE") {
+			return Node(NodeType::n_INCLUDE, { expr() });
         } else {
             raiseError("Invalid keyword: '"+currentToken.name+"'");
         }
     } else {
+		std::cout << currentToken << std::endl;
         raiseError("Expected (END-*?) keyword!");
     }
     return Node(NodeType::n_NULL);

@@ -41,7 +41,8 @@ enum NodeType {
     n_ARGS = 31,
     n_ARG = 32,
     n_FUNCTION_CALL = 33,
-    n_RETURN = 34
+    n_RETURN = 34,
+	n_INCLUDE = 35
 };
 
 /* NODE STRUCT */
@@ -85,6 +86,7 @@ class Parser {
         Node def_expr(); // DEF identifier LPAREN (identifier (COMMA))* DO <block_expr> RETURN <expr>
         Node builtin_expr(); // COMMAND (<expression> (COMMA))*
         Node block_expr(std::vector<std::string> terminators); // (expr(<sep_expr>*))* until one of terminator KEYWORDS reached. e.g. ENDIF/ELSE for IF
+		Node include_expr(); // INCLUDE STRING
         int sep_expr(); // goes past any useless separators, returns the number of separators.
         void raiseError(); // in case of a syntax error (at the end of factor or after parse) throw runtime error
         void raiseError(std::string msg); // syntax error-specific message

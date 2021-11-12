@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
     } else { // file
         std::string fname(argv[1]);
         std::string data = readFile(fname);
+		std::string cwd = getWD(fname);
         if (data == "ERROR") {
             throw std::runtime_error("Unable to open file " + fname);
         }
@@ -63,6 +64,7 @@ int main(int argc, char **argv) {
         Parser parser = Parser(tokens);
         Node tree = parser.parse();
         Interpreter interpreter = Interpreter(smbt);
+		interpreter.cwd = &cwd;
         Variable result = interpreter.visit(tree);
     }
     return 0;

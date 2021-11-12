@@ -1,0 +1,3 @@
+INCLUDE "_math_"
+
+PRINT sqrt(4)

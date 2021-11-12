@@ -16,3 +16,13 @@ std::string readFile(std::string file_name) {
 	} else return "ERROR"; 
 	return text;
 }
+
+std::string getWD(std::string file_name) {
+	std::string med;
+	std::string f;
+	for (char c : file_name) {
+		if (c == '/') {f += med + '/'; med = "";}
+		else med += c;
+	}
+	return f;
+}

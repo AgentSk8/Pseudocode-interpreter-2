@@ -62,7 +62,8 @@ std::vector<std::string> keywords = {
     "DEF",
     "RETURN",
     "ENDEF",
-    "REM"
+    "REM",
+	"INCLUDE"
 };
 
 /* TOKEN DECLARATION (DEPENDS ON TYPE) */

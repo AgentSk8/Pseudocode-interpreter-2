@@ -7,7 +7,8 @@ std::map<ErrorType,std::string> ErrorTypeMap = {
 	{ e_InvalidSyntax, 		"Invalid Syntax Error" 		},
 	{ e_RuntimeError, 		"Runtime Error" 			},
 	{ e_MathError, 			"Math Error"	 			},
-	{ e_UndefinedError, 	"Undefined Error" 			}
+	{ e_UndefinedError, 	"Undefined Error" 			},
+	{ e_ModuleNotFoundError, "Module Not Found Error" 	},
 };
 
 

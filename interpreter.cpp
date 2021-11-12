@@ -1,3 +1,4 @@
+#include "file.h"
 #include "parser.h"
 #include "interpreter.h"
 #include "error.h"
@@ -5,8 +6,9 @@
 #include <algorithm>
 
 /* ERROR DEFAULT */
-Error E_Interpreter = Error(e_RuntimeError);
-Error E_Math = Error(e_MathError);
+Error E_Interpreter = 	Error(e_RuntimeError);
+Error E_Math = 			Error(e_MathError);
+Error E_Module = 		Error(e_ModuleNotFoundError);
 
 /* HELPER FUNCTION TO REMOVE ALL SUBSTRINGS FROM A MAIN STRING */
 std::string substringRemove(std::string main_string, std::string substring) {
@@ -601,6 +603,43 @@ Variable Interpreter::visit(Node node) {
             return_value = visit(node.nodes[0]);
             return return_value;
         }
+		case n_INCLUDE: {
+			Variable lib = visit(node.nodes[0]);
+
+			if (lib.type != "string") return Variable(Number("Type '"+lib.type+"' is not valid for library name."));
+			std::string libname = lib.string.value;
+			std::string filename;
+			if (libname[0] == '_' && libname[libname.size()-1] == '_') filename = "stdlib/"+libname;
+			else filename = *cwd+libname;
+			std::string data = readFile(filename);
+			if (data == "ERROR") {
+				E_Module.throw_("Module '"+libname+"' not found.");
+			}
+			Lexer lexer = Lexer(data);
+			std::vector<Token> tokens = lexer.generateTokens();
+			if (tokens.size() == 0) return 0;
+			/*std::cout << "[";
+			for (int i = 0 ; i < tokens.size(); i++) {
+				Token token = tokens[i];
+				if (i == tokens.size()-1)
+					std::cout << token;
+				else
+					std::cout << token << ", ";
+			}
+			std::cout << "]\n";*/
+			Parser parser = Parser(tokens);
+			Node tree = parser.parse();
+			Interpreter interpreter = Interpreter(globalSymbolTable);
+        	Variable result = interpreter.visit(tree);
+			SymbolTable inter = interpreter.globalSymbolTable;
+			
+			for(std::map<std::string,Variable>::const_iterator it = inter.m.begin(); it != inter.m.end(); ++it) {
+				globalSymbolTable.set(it->first,it->second);
+			}
+			return Variable(Number());
+			// TODO: ADD interpreter.globalSymbolTable to globalSymbolTable
+			// TODO: check for redundant modules
+		}
         default:
             return Variable(Number("Unknown runtime error."));
 

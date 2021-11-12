@@ -10,6 +10,7 @@ enum ErrorType {
 	e_RuntimeError = 2,
 	e_UndefinedError = 3,
 	e_MathError = 4,
+	e_ModuleNotFoundError = 5
 };
 
 extern std::map<ErrorType,std::string> ErrorTypeMap;

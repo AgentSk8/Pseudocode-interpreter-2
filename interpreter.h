@@ -126,6 +126,7 @@ class Interpreter {
     bool return_ = 0;
     Variable return_value;
     public:
+		std::string* cwd;
         Interpreter(SymbolTable& GlobalSymbolTable) : globalSymbolTable(GlobalSymbolTable) {}
         Variable visit(Node node); // visit each node and return result in parent node
 };
