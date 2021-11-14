@@ -1,3 +1,5 @@
+INCLUDE "_string_"
+
 DEF readFile(f) DO
 	RETURN shell("cat " + f)
 ENDEF
@@ -12,10 +14,6 @@ DEF removeFile(f) DO
 ENDEF
 
 DEF listDir(d) DO
-	list <- shell("ls")
+	str <- shell("ls " + d)
+	RETURN split(str,"\n")
 ENDEF
-
-REM Function commented for danger of losing work...
-REM DEF removeDir(f) DO
-REM 	RETURN shell("rm -fr")
-REM ENDEF

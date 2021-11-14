@@ -6,8 +6,8 @@ DEF fib(n) DO
 	ENDIF
 ENDEF
 
-REM PRINT "How many numbers: "
-REM INPUT n
-REM FOR i <- 0 TO n
-	REM PRINT fib(i) + "\n"
-REM NEXT i+1
+PRINT "How many numbers: "
+INPUT n
+FOR i <- 0 TO n
+	PRINT fib(i) + "\n"
+NEXT i+1

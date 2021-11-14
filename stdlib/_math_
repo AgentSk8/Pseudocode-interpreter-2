@@ -1,7 +1,13 @@
+INCLUDE "_string_"
+INCLUDE "_list_"
+
 PI <- 3.141592653589793
+e <- 2.71828
+
 DEF sqrt(a) DO
 	RETURN a ^ 0.5
 ENDEF
+
 DEF factorial(a) DO
 	b <- 1
 	FOR i <- 1 TO a+1
@@ -9,6 +15,7 @@ DEF factorial(a) DO
 	NEXT i + 1
 	RETURN b
 ENDEF
+
 DEF sin(a) DO
 	op <- -1
 	r <- a
@@ -18,6 +25,7 @@ DEF sin(a) DO
 	NEXT i +2
 	RETURN r
 ENDEF
+
 DEF cos(a) DO
 	op <- -1
 	r <- 1
@@ -27,12 +35,77 @@ DEF cos(a) DO
 	NEXT i +2
 	RETURN r
 ENDEF
+
 DEF tan(a) DO
 	RETURN sin(a)/cos(a)
 ENDEF
+
 DEF deg(a) DO
 	RETURN a * 180 / PI
 ENDEF
+
 DEF rad(a) DO
 	RETURN a * PI/180
+ENDEF
+
+DEF abs(x) DO
+	IF x < 0 THEN
+		RETURN x * -1
+	ENDIF
+	RETURN x
+ENDEF
+
+DEF floor(x) DO
+	str <- x + ""
+	l <- split(str,".")
+	RETURN toNum(l^0)
+ENDEF
+
+DEF ceil(x) DO
+	str <- x + ""
+	l <- split(str,".")
+	IF str = l^0 THEN
+		RETURN x
+	ELSE
+		RETURN floor(x) + 1
+	ENDIF
+ENDEF
+
+REM a mod b
+DEF mod(a,b) DO
+	RETURN a-b*floor(a/b)
+ENDEF
+
+DEF hcf(l) DO
+	REM TODO: Finish this function
+	RETURN 1
+	IF sizeof(l) = 2 THEN
+		FOR i <- 1 TO max(l)
+			IF mod(l^0,i) AND mod(l^1,i) THEN
+				RETURN i
+			ENDIF
+		NEXT i+1
+	ELSE
+		ll <- l^0
+		FOR i <- 1 TO sizeof(l)
+			ll <- hcf(ll,l^i)
+		NEXT i+1
+		RETURN ll
+	ENDIF
+ENDEF
+
+DEF gcd(l) DO
+	RETURN hcf(l)
+ENDEF
+
+DEF lcm(l) DO
+	RETURN abs(product(l))/hcf(l)
+ENDEF
+
+DEF permutations(n,k) DO
+	RETURN factorial(n)/factorial(n-k)
+ENDEF
+
+DEF combinations(n,k) DO
+	RETURN permutations(n)/factorial(k)
 ENDEF

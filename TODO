@@ -39,3 +39,4 @@
 		- SUM(list)
 		- INSERT(val, list)
 		- etc...
+- MEMORY OPTIMISATIONS! (i.e. use pointers to avoid copying vars)

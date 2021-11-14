@@ -1,0 +1,52 @@
+DEF sum(l) DO
+	s <- 0
+	FOR i <- 0 TO sizeof(l)
+		s <- s + l^i
+	NEXT i + 1
+	RETURN s
+ENDEF
+DEF product(l) DO
+	s <- 0
+	FOR i <- 0 TO sizeof(l)
+		s <- s * l^i
+	NEXT i + 1
+	RETURN s
+ENDEF
+DEF max(l) DO
+	mx <- l^0
+	FOR i <- 0 TO sizeof(l)
+		c <- l^i
+		IF c > mx THEN
+			mx <- c
+		ENDIF
+	NEXT i + 1
+	RETURN mx
+ENDEF
+DEF min(l) DO
+	mn <- l^0
+	FOR i <- 0 TO sizeof(l)
+		c <- l^i
+		IF c < mn THEN
+			mn <- c
+		ENDIF
+	NEXT i + 1
+	RETURN mn
+ENDEF
+DEF insert(l,i,d) DO
+	r <- []
+	FOR j <- 0 TO sizeof(l)
+		IF j = i THEN
+			r <- r + d
+		ELSE
+			r <- r + l^j
+		ENDIF
+	NEXT i + 1
+	RETURN r
+ENDEF
+DEF toString(l) DO
+	s <- ""
+	FOR i <- 0 TO sizeof(l)
+		s <- s + l^i
+	NEXT i + 1
+	RETURN s
+ENDEF

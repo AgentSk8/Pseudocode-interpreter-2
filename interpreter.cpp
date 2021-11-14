@@ -562,15 +562,15 @@ Variable Interpreter::visit(Node node) {
 			Variable n2 = visit(node.nodes[1]);
 			if (n1.type == "number"){
 				if (n2.type == "number") {
-					return Variable(Number(n1.value==n2.value));
+					return Variable(Number(n1.number.value==n2.number.value));
 				} else if (n2.type == "string") {
 					return Variable(Number(std::to_string(n1.value)==n2.string));
 				} else return Variable(Number(0));
 			} else if (n1.type == "string") {
 				if (n2.type == "string") {
-					return Variable(Number(n1.string==n2.string));
+					return Variable(Number(n1.string.value==n2.string.value));
 				} else if (n2.type == "number") {
-					return Variable(Number(std::to_string(n2.value)==n1.string));
+					return Variable(Number(std::to_string(n2.number.value)==n1.string.value));
 				} else return Variable(Number(0));
 			} else if (n1.type == "list") {
 				if (n2.type == "list") {
@@ -628,10 +628,10 @@ Variable Interpreter::visit(Node node) {
         case NodeType::n_FOR: {
             // assignment, end, commands, step
             visit(node.nodes[0]);
-            while (globalSymbolTable.get(node.nodes[0].name).value != visit(node.nodes[1]).value) {
+            while (globalSymbolTable.get(node.nodes[0].name).value < visit(node.nodes[1]).value) {
                 visit(node.nodes[2]);
+				if (return_) break;
                 globalSymbolTable.set(node.nodes[0].name,visit(node.nodes[3]));
-                if (return_) break;
             }
             return return_value;
         }
@@ -662,6 +662,7 @@ Variable Interpreter::visit(Node node) {
             for (long long i = 0; i < node.nodes.size(); i++) {
                 if (node.nodes[i].type == NodeType::n_RETURN) return visit(node.nodes[i]);
                 visit(node.nodes[i]);
+				if (return_) return return_value;
             }
             return Variable(Number());
         }
@@ -690,6 +691,12 @@ Variable Interpreter::visit(Node node) {
 					return Variable(Number("Invalid type for special funciton sizeof: '"+arg.type+"'."));
 				}
 				return Variable(Number(val));
+			} else if (node.name == "toNum") {
+				Variable arg = visit(node.nodes[0].nodes[0]);
+				if (arg.type != "string") {
+					return Variable(Number("Invalid type '"+arg.type+"' to be converted to number. (Must be string)"));
+				}
+				return Variable(Number(std::stof(arg.string.value)));
 			}
             // get original function from global symboltable
             Function fun = globalSymbolTable.get(node.name).function;
