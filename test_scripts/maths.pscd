@@ -1,6 +1,6 @@
 INCLUDE "_math_"
 
-n <- 20
+n <- 5
 
 s <- sqrt(n)
 
@@ -14,7 +14,7 @@ PRINT "Tan of " + n + ": " + tan(n) + "\n"
 PRINT n + "c = " + deg(n) + "º\n"
 PRINT n + "º = " + rad(n) + "c\n"
 PRINT n + " % 10 = " + mod(n,10) + "\n"
-PRINT "hcf("+n+",10) = " + hcf([n,10]) + "\n"
-PRINT "lcm("+n+",10) = " + lcm([n,10]) + "\n"
+PRINT "hcf("+n+",10) = " + hcf(n,10) + "\n"
+PRINT "lcm("+n+",10) = " + lcm(n,10) + "\n"
 PRINT "nPr("+n+",10) = " + permutations(n,10) + "\n"
 PRINT "nCr("+n+",10) = " + combinations(n,10) + "\n"

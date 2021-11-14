@@ -2,7 +2,7 @@ import os
 files = 0
 lines = 0
 characters = 0
-for file in os.listdir('.'):
+for file in os.listdir('./src'):
 	ext = file.split('.')[-1]
 	if  ext == "cpp" or ext == "h":
 		f = open(file,'r').read()

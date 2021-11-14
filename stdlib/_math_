@@ -76,30 +76,45 @@ DEF mod(a,b) DO
 	RETURN a-b*floor(a/b)
 ENDEF
 
-DEF hcf(l) DO
-	REM TODO: Finish this function
-	RETURN 1
-	IF sizeof(l) = 2 THEN
-		FOR i <- 1 TO max(l)
-			IF mod(l^0,i) AND mod(l^1,i) THEN
-				RETURN i
-			ENDIF
-		NEXT i+1
-	ELSE
-		ll <- l^0
-		FOR i <- 1 TO sizeof(l)
-			ll <- hcf(ll,l^i)
-		NEXT i+1
-		RETURN ll
-	ENDIF
+DEF hcf(a,b) DO
+	l <- []
+	FOR i <- 1 TO min([a,b])+1
+		IF mod(a,i) = 0 AND mod(b,i) = 0 THEN
+			l <- l + i
+		ENDIF
+	NEXT i+1
+	RETURN max(l)
 ENDEF
 
-DEF gcd(l) DO
-	RETURN hcf(l)
+DEF lHcf(l) DO
+	result <- l^0
+	FOR i <- 0 TO sizeof(l)
+		result <- hcf(l^i,result)
+		IF result = 1 THEN
+			RETURN 1
+		ENDIF
+	NEXT i+1
+	RETURN result
 ENDEF
 
-DEF lcm(l) DO
-	RETURN abs(product(l))/hcf(l)
+DEF gcd(a,b) DO
+	RETURN hcf(a,b)
+ENDEF
+
+DEF lGcd(l) DO
+	RETURN lHcf(l)
+ENDEF
+
+DEF lLcm(l) DO
+	ans <- l^0
+	FOR i <- 1 TO sizeof(l)
+		ans <- (l^i*ans)/(gcd(l^i,ans))
+	NEXT i + 1
+	RETURN ans
+ENDEF
+
+DEF lcm(a,b) DO
+	RETURN (a*b)/gcd(a,b)
 ENDEF
 
 DEF permutations(n,k) DO
@@ -107,5 +122,5 @@ DEF permutations(n,k) DO
 ENDEF
 
 DEF combinations(n,k) DO
-	RETURN permutations(n)/factorial(k)
+	RETURN permutations(n,k)/factorial(k)
 ENDEF

@@ -8,7 +8,7 @@ print(f"{amber}TESTING {len(files)} FILES.\n(If stalling, probably wating for in
 for file in files:
 	if file.split(".")[-1] == 'pscd':
 		print(f"{amber}RUNNING {file}...{reset}")
-		res = subprocess.run(os.path.dirname(__file__)+"/../main test_scripts/"+file, shell=True, capture_output=True)
+		res = subprocess.run(os.path.dirname(__file__)+"/../builds/main test_scripts/"+file, shell=True, capture_output=True)
 		if res.returncode != 0:
 			print(f"{red}[X] {file}\tFAILED:\n\t{reset}{res.stderr}\n")
 		else:
