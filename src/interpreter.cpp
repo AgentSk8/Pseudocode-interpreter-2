@@ -1,9 +1,11 @@
+#include "os.h"
 #include "file.h"
 #include "parser.h"
 #include "interpreter.h"
 #include "error.h"
 #include <math.h>
 #include <algorithm>
+#include <array>
 
 /* ERROR DEFAULT */
 Error E_Interpreter = 	Error(e_RuntimeError);
@@ -297,8 +299,12 @@ public:
             pclose(pipe);
             throw;
         }
+#ifdef linux
         exitcode = WEXITSTATUS(pclose(pipe));
-        return CommandResult{result, exitcode};
+#else
+		pclose(pipe);
+#endif
+        return CommandResult{result, 0};
     }
 };
 /////////////////////////////////

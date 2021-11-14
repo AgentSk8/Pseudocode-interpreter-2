@@ -1,10 +1,11 @@
 #include<iostream>
+#include "os.h"
 #include "file.h"
 #include "lexer.h"
 #include "parser.h"
 #include "interpreter.h"
 
-bool debug = 1;
+bool debug = 0;
 bool interpreter = 0;
 
 int main(int argc, char **argv) {
@@ -12,6 +13,22 @@ int main(int argc, char **argv) {
     /* SET GLOBAL VARIABLES */
     smbt.set("TRUE",1);
     smbt.set("FALSE",0);
+#ifdef windows
+	smbt.set("OS",0);
+#endif
+#ifdef mac
+	smbt.set("OS",1);
+#endif
+#ifdef linux
+	smbt.set("OS",2);
+#endif
+#ifdef unix
+	smbt.set("OS",3);
+#endif
+#ifdef posix
+	smbt.set("OS",4);
+#endif
+
     if (argc == 1) {
         std::string expression;
         int c=0;
