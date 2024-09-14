@@ -4,6 +4,6 @@
 
 ## [Unreleased]
 ### Added
--
+- Added CHANGELOG.md
 ### Changed
 - 
